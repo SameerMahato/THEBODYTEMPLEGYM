@@ -1,0 +1,94 @@
+export type MemberStatus = 'pending' | 'active' | 'inactive'
+export type PaymentMethod = 'cash' | 'upi' | 'bank_transfer' | 'card' | 'other'
+export type PaymentType = 'payment' | 'adjustment'
+export type StaffRole = 'admin' | 'staff'
+
+export interface Gym {
+  id: string
+  name: string
+  address: string | null
+  phone: string | null
+  email: string | null
+  created_at: string
+}
+
+export interface StaffUser {
+  id: string
+  gym_id: string
+  full_name: string
+  email: string
+  role: StaffRole
+  created_at: string
+}
+
+export interface MembershipPlan {
+  id: string
+  gym_id: string
+  name: string
+  price: number
+  duration_days: number
+  is_active: boolean
+  created_at: string
+}
+
+export interface Member {
+  id: string
+  gym_id: string
+  full_name: string
+  phone: string | null
+  email: string | null
+  date_of_birth: string | null
+  join_date: string
+  photo_url: string | null
+  emergency_contact_name: string | null
+  emergency_contact_phone: string | null
+  notes: string | null
+  status: MemberStatus
+  created_at: string
+  updated_at: string
+}
+
+export interface MemberSubscription {
+  id: string
+  gym_id: string
+  member_id: string
+  plan_id: string
+  start_date: string
+  end_date: string
+  is_current: boolean
+  created_at: string
+  membership_plan?: MembershipPlan
+}
+
+export interface Payment {
+  id: string
+  gym_id: string
+  member_id: string
+  subscription_id: string | null
+  recorded_by: string
+  type: PaymentType
+  amount: number
+  payment_date: string
+  payment_method: PaymentMethod
+  period_start: string | null
+  period_end: string | null
+  notes: string | null
+  related_payment_id: string | null
+  reason: string | null
+  created_at: string
+  staff_user?: StaffUser
+  member?: Member
+  adjustments?: Payment[]
+}
+
+export interface DashboardStats {
+  total_active: number
+  revenue_this_month: number
+  expiring_soon: MemberWithSubscription[]
+  overdue: MemberWithSubscription[]
+  pending_signups: Member[]
+}
+
+export interface MemberWithSubscription extends Member {
+  current_subscription: MemberSubscription | null
+}
