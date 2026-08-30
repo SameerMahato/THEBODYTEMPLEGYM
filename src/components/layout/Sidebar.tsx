@@ -12,6 +12,7 @@ const NAV = [
   { href: '/plans',           label: 'Plans',           icon: <PlansIcon /> },
   { href: '/payments',        label: 'Payments',        icon: <PayIcon /> },
   { href: '/pending-signups', label: 'Pending Signups', icon: <InboxIcon /> },
+  { href: '/join-qr',         label: 'Join QR Code',    icon: <QRIcon /> },
 ]
 
 export default function Sidebar({ onClose }: { onClose?: () => void }) {
@@ -258,6 +259,18 @@ function InboxIcon() {
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
       <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
       <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+    </svg>
+  )
+}
+function QRIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+      <rect x="3" y="14" width="7" height="7"/>
+      <line x1="14" y1="14" x2="14" y2="14.01"/><line x1="17" y1="14" x2="17" y2="14.01"/>
+      <line x1="20" y1="14" x2="20" y2="14.01"/><line x1="14" y1="17" x2="14" y2="17.01"/>
+      <line x1="17" y1="17" x2="20" y2="17"/><line x1="20" y1="20" x2="20" y2="20.01"/>
+      <line x1="17" y1="20" x2="17" y2="20.01"/><line x1="14" y1="20" x2="14" y2="20.01"/>
     </svg>
   )
 }
