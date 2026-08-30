@@ -47,7 +47,9 @@ export async function POST(request: NextRequest) {
 
   if (!gym) return NextResponse.json({ error: 'Gym not configured' }, { status: 500 })
 
-  const { data, error } = await supabase
+  // No .select() here — anonymous users can INSERT but not SELECT member rows (RLS).
+  // The join form only needs to know if the request succeeded.
+  const { error } = await supabase
     .from('member')
     .insert({
       gym_id: gym.id,
@@ -61,9 +63,7 @@ export async function POST(request: NextRequest) {
       notes: null,
       status: 'pending',
     })
-    .select('id, full_name')
-    .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data, { status: 201 })
+  return NextResponse.json({ ok: true }, { status: 201 })
 }
