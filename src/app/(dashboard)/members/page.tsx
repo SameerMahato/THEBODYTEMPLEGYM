@@ -156,6 +156,10 @@ export default function MembersPage() {
                     <tr
                       key={m.id}
                       onClick={() => router.push(`/members/${m.id}`)}
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/members/${m.id}`) } }}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`View ${m.full_name}`}
                       style={{ cursor: 'pointer' }}
                     >
                       <td>

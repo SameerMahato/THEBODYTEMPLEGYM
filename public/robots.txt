@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /dashboard
+Disallow: /members
+Disallow: /plans
+Disallow: /payments
+Disallow: /pending-signups
+Disallow: /join-qr
+Disallow: /api/
+
+Allow: /join
+Allow: /login

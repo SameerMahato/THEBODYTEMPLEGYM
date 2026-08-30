@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { formatCurrency, formatDate, daysUntil } from '@/lib/utils'
@@ -485,7 +486,7 @@ function LoadingSkeleton() {
     <div style={{ padding: '32px 36px' }}>
       <div style={{ height: '14px', width: '180px', background: 'var(--bg-elevated)', borderRadius: '4px', marginBottom: '10px' }} />
       <div style={{ height: '44px', width: '240px', background: 'var(--bg-elevated)', borderRadius: '4px', marginBottom: '32px' }} />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '32px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '32px' }}>
         {[1,2,3,4].map(i => (
           <div key={i} style={{ height: '110px', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }} />
         ))}
@@ -495,7 +496,6 @@ function LoadingSkeleton() {
 }
 
 // Icons
-import React from 'react'
 function UsersIcon() {
   return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
 }
