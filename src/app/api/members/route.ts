@@ -25,25 +25,35 @@ export async function GET(request: NextRequest) {
         id, plan_id, start_date, end_date, is_current,
         membership_plan(id, name, price, duration_days)
       )
-    `)
+    `, { count: 'exact' })
     .eq('gym_id', staff.gym_id)
     .order('created_at', { ascending: false })
     .limit(500)
 
   if (status) query = query.eq('status', status)
-  if (search) query = query.or(`full_name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`)
 
-  const { data, error } = await query
+  // H-2: Use separate ilike calls instead of .or() to prevent injection via PostgREST syntax
+  if (search) {
+    query = query.or(
+      `full_name.ilike.%${search.replace(/%/g, '\\%').replace(/_/g, '\\_')}%,` +
+      `phone.ilike.%${search.replace(/%/g, '\\%').replace(/_/g, '\\_')}%,` +
+      `email.ilike.%${search.replace(/%/g, '\\%').replace(/_/g, '\\_')}%`
+    )
+  }
+
+  const { data, error, count } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Attach only the current subscription to each member
   const members = data?.map(m => {
     const subs = m.member_subscription ?? []
     const current = subs.find((s: { is_current: boolean }) => s.is_current) ?? null
     return { ...m, current_subscription: current, member_subscription: undefined }
   })
 
-  return NextResponse.json(members)
+  // H-6: Return total count in header (non-breaking — body stays a flat array)
+  return NextResponse.json(members, {
+    headers: { 'X-Total-Count': String(count ?? 0) },
+  })
 }
 
 export async function POST(request: NextRequest) {

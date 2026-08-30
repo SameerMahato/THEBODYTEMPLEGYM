@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 const NAV = [
   { href: '/dashboard',       label: 'Dashboard',       icon: <DashIcon /> },
@@ -18,7 +18,8 @@ const NAV = [
 export default function Sidebar({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
-  const supabase = createClient()
+  // L-1: useMemo so the client is not recreated on every render
+  const supabase = useMemo(() => createClient(), [])
   const [pendingCount, setPendingCount] = useState(0)
 
   useEffect(() => {

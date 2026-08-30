@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+// H-1: In-memory rate limiter with periodic pruning.
+// NOTE: This is per-instance; in serverless each cold start has a fresh map.
+// For production rate limiting use Redis/Upstash or Vercel KV.
 const rateLimit = new Map<string, { count: number; resetAt: number }>()
+let lastPruneAt = Date.now()
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now()
+
+  // Prune expired entries every 5 minutes to prevent unbounded growth
+  if (now - lastPruneAt > 5 * 60_000) {
+    for (const [key, entry] of rateLimit) {
+      if (now > entry.resetAt) rateLimit.delete(key)
+    }
+    lastPruneAt = now
+  }
+
   const entry = rateLimit.get(ip)
   if (!entry || now > entry.resetAt) {
     rateLimit.set(ip, { count: 1, resetAt: now + 60_000 })
@@ -27,7 +40,6 @@ export async function POST(request: NextRequest) {
   const supabase = await createClient()
   const body = await request.json()
 
-  // Get the gym — in v1 there's only one gym in the DB
   const name = (body.full_name ?? '').toString().trim()
   if (!name || name.length > 100) {
     return NextResponse.json({ error: 'Full name is required (max 100 characters)' }, { status: 400 })
@@ -35,8 +47,29 @@ export async function POST(request: NextRequest) {
   if (body.phone && body.phone.toString().length > 20) {
     return NextResponse.json({ error: 'Phone number too long (max 20 characters)' }, { status: 400 })
   }
-  if (body.email && body.email.toString().length > 255) {
-    return NextResponse.json({ error: 'Email too long (max 255 characters)' }, { status: 400 })
+
+  // M-5: Email format validation
+  if (body.email) {
+    const email = body.email.toString()
+    if (email.length > 255) {
+      return NextResponse.json({ error: 'Email too long (max 255 characters)' }, { status: 400 })
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
+    }
+  }
+
+  // M-5: Date of birth format validation
+  if (body.date_of_birth) {
+    const dob = body.date_of_birth.toString()
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dob)) {
+      return NextResponse.json({ error: 'Invalid date of birth format (expected YYYY-MM-DD)' }, { status: 400 })
+    }
+    const dobDate = new Date(dob)
+    const now = new Date()
+    if (isNaN(dobDate.getTime()) || dobDate > now) {
+      return NextResponse.json({ error: 'Invalid date of birth' }, { status: 400 })
+    }
   }
 
   const { data: gym } = await supabase
@@ -47,8 +80,7 @@ export async function POST(request: NextRequest) {
 
   if (!gym) return NextResponse.json({ error: 'Gym not configured' }, { status: 500 })
 
-  // No .select() here — anonymous users can INSERT but not SELECT member rows (RLS).
-  // The join form only needs to know if the request succeeded.
+  // No .select() — anonymous users can INSERT but not SELECT member rows (RLS)
   const { error } = await supabase
     .from('member')
     .insert({
@@ -58,8 +90,6 @@ export async function POST(request: NextRequest) {
       email: body.email || null,
       date_of_birth: body.date_of_birth || null,
       join_date: new Date().toISOString().split('T')[0],
-      emergency_contact_name: body.emergency_contact_name || null,
-      emergency_contact_phone: body.emergency_contact_phone || null,
       notes: null,
       status: 'pending',
     })

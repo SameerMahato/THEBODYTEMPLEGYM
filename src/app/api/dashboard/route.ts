@@ -25,7 +25,6 @@ export async function GET() {
   monthStart.setDate(1)
   const monthStartStr = monthStart.toISOString().split('T')[0]
 
-  // Run all queries in parallel
   const [
     activeCount,
     revenueResult,
@@ -33,21 +32,20 @@ export async function GET() {
     overdue,
     pendingSignups,
   ] = await Promise.all([
-    // Total active members
     supabase
       .from('member')
       .select('id', { count: 'exact', head: true })
       .eq('gym_id', gymId)
       .eq('status', 'active'),
 
-    // Revenue this month (payments only, net of adjustments)
+    // M-6: Only sum type='payment', exclude adjustments
     supabase
       .from('payment')
       .select('amount')
       .eq('gym_id', gymId)
+      .eq('type', 'payment')
       .gte('payment_date', monthStartStr),
 
-    // Expiring in next 7 days — query from member_subscription so filters apply correctly
     supabase
       .from('member_subscription')
       .select(`
@@ -62,7 +60,6 @@ export async function GET() {
       .eq('member.status', 'active')
       .order('end_date', { ascending: true }),
 
-    // Overdue — current subscription expired
     supabase
       .from('member_subscription')
       .select(`
@@ -76,7 +73,6 @@ export async function GET() {
       .eq('member.status', 'active')
       .order('end_date', { ascending: true }),
 
-    // Pending signups
     supabase
       .from('member')
       .select('*')
@@ -85,7 +81,6 @@ export async function GET() {
       .order('created_at', { ascending: false }),
   ])
 
-  // Net revenue (sum of all payment amounts, adjustments have negative amounts)
   const revenue = revenueResult.data?.reduce((sum, p) => sum + (p.amount ?? 0), 0) ?? 0
 
   return NextResponse.json({

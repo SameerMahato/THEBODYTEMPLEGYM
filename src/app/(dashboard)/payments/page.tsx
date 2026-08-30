@@ -24,8 +24,16 @@ export default function PaymentsPage() {
   const [dateFrom, setDateFrom] = useState('')
   const [dateTo, setDateTo] = useState('')
 
+  // M-2: Pass active filters to the API so server filters before the 500-record cap
   useEffect(() => {
-    fetch('/api/payments/recent')
+    const params = new URLSearchParams()
+    if (typeFilter) params.set('type', typeFilter)
+    if (dateFrom)   params.set('from', dateFrom)
+    if (dateTo)     params.set('to', dateTo)
+    const url = '/api/payments/recent' + (params.toString() ? '?' + params.toString() : '')
+
+    setLoading(true)
+    fetch(url)
       .then(r => {
         if (!r.ok) {
           if (r.status === 401) { window.location.href = '/login'; return null }
@@ -35,7 +43,7 @@ export default function PaymentsPage() {
       })
       .then(d => { if (d) { setPayments(d ?? []); setLoading(false) } })
       .catch(() => setLoading(false))
-  }, [])
+  }, [typeFilter, dateFrom, dateTo])
 
   const filtered = useMemo(() => {
     return payments.filter(p => {

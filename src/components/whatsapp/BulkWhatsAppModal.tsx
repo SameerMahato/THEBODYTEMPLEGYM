@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { daysUntil } from '@/lib/utils'
 
 interface SubWithMember {
@@ -43,6 +43,12 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
   const withPhone = allItems.filter(s => s.member?.phone)
   const [sent, setSent] = useState<Set<string>>(new Set())
   const [sending, setSending] = useState(false)
+  // M-3: Track timer IDs so they can be cancelled on unmount
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
+
+  useEffect(() => {
+    return () => { timersRef.current.forEach(clearTimeout) }
+  }, [])
 
   const sentCount = sent.size
   const totalWithPhone = withPhone.length
@@ -58,11 +64,14 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
   function sendAll() {
     if (sending) return
     setSending(true)
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current = []
     withPhone.forEach((s, i) => {
-      setTimeout(() => {
+      const t = setTimeout(() => {
         sendOne(s)
         if (i === withPhone.length - 1) setSending(false)
       }, i * 600)
+      timersRef.current.push(t)
     })
   }
 

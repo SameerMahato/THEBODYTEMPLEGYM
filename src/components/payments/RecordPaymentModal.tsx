@@ -46,7 +46,11 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
   })
 
   useEffect(() => {
-    fetch('/api/plans').then(r => r.json()).then(setPlans).catch(() => {})
+    // H-3: Check r.ok before parsing to prevent unhandled JSON parse errors on 4xx/5xx
+    fetch('/api/plans')
+      .then(r => r.ok ? r.json() : [])
+      .then(setPlans)
+      .catch(() => {})
   }, [])
 
   useEffect(() => {

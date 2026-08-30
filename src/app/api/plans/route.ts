@@ -32,6 +32,21 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  // H-4: Server-side validation
+  const name = (body.name ?? '').toString().trim()
+  if (!name) return NextResponse.json({ error: 'Plan name is required' }, { status: 400 })
+  if (name.length > 100) return NextResponse.json({ error: 'Plan name too long (max 100 chars)' }, { status: 400 })
+
+  const price = Number(body.price)
+  if (!Number.isFinite(price) || price < 0) {
+    return NextResponse.json({ error: 'Price must be a non-negative number' }, { status: 400 })
+  }
+
+  const duration = Number(body.duration_days)
+  if (!Number.isInteger(duration) || duration < 1) {
+    return NextResponse.json({ error: 'Duration must be a positive integer (days)' }, { status: 400 })
+  }
+
   const { data: staff } = await supabase
     .from('staff_user')
     .select('gym_id')
@@ -44,9 +59,9 @@ export async function POST(request: NextRequest) {
     .from('membership_plan')
     .insert({
       gym_id: staff.gym_id,
-      name: body.name,
-      price: body.price,
-      duration_days: body.duration_days,
+      name,
+      price,
+      duration_days: duration,
     })
     .select()
     .single()

@@ -26,8 +26,8 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false)
   const [deactivating, setDeactivating] = useState(false)
 
-  function load() {
-    fetch(`/api/members/${id}`)
+  function load(): Promise<void> {
+    return fetch(`/api/members/${id}`)
       .then(r => {
         if (!r.ok) {
           if (r.status === 401) { window.location.href = '/login'; return null }
@@ -44,22 +44,42 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
   async function handleDeactivate() {
     if (!confirm('Mark this member as inactive?')) return
     setDeactivating(true)
-    await fetch(`/api/members/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'inactive' }),
-    })
-    load()
-    setDeactivating(false)
+    try {
+      const res = await fetch(`/api/members/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'inactive' }),
+      })
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        alert(d.error || 'Failed to deactivate member')
+      }
+    } catch {
+      alert('Network error — please try again')
+    } finally {
+      // L-3: await load() so setDeactivating(false) fires after the refresh completes
+      await load()
+      setDeactivating(false)
+    }
   }
 
   async function handleActivate() {
     if (!confirm('Reactivate this member?')) return
-    await fetch(`/api/members/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'active' }),
-    })
+    try {
+      const res = await fetch(`/api/members/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'active' }),
+      })
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        alert(d.error || 'Failed to reactivate member')
+        return
+      }
+    } catch {
+      alert('Network error — please try again')
+      return
+    }
     load()
   }
 
