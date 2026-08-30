@@ -13,8 +13,14 @@ export default function PendingSignupsPage() {
 
   useEffect(() => {
     fetch('/api/members?status=pending')
-      .then(r => r.json())
-      .then(d => { setMembers(d); setLoading(false) })
+      .then(r => {
+        if (!r.ok) {
+          if (r.status === 401) { window.location.href = '/login'; return null }
+          throw new Error('Failed')
+        }
+        return r.json()
+      })
+      .then(d => { if (d) { setMembers(d); setLoading(false) } })
       .catch(() => setLoading(false))
   }, [])
 

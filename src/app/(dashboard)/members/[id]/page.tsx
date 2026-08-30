@@ -28,8 +28,14 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
 
   function load() {
     fetch(`/api/members/${id}`)
-      .then(r => r.json())
-      .then(d => { setMember(d); setLoading(false) })
+      .then(r => {
+        if (!r.ok) {
+          if (r.status === 401) { window.location.href = '/login'; return null }
+          return null
+        }
+        return r.json()
+      })
+      .then(d => { setMember(d ?? null); setLoading(false) })
       .catch(() => setLoading(false))
   }
 
@@ -48,6 +54,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
   }
 
   async function handleActivate() {
+    if (!confirm('Reactivate this member?')) return
     await fetch(`/api/members/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },

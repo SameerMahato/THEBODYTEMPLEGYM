@@ -6,10 +6,10 @@ import { Member } from '@/types'
 import PageHeader from '@/components/ui/PageHeader'
 import Button from '@/components/ui/Button'
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, htmlFor, children }: { label: string; htmlFor?: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      <label style={{
+      <label htmlFor={htmlFor} style={{
         fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em',
         textTransform: 'uppercase', color: 'var(--text-secondary)',
       }}>{label}</label>
@@ -37,17 +37,19 @@ export default function EditMemberPage({ params }: { params: Promise<{ id: strin
   useEffect(() => {
     setLoading(true)
     fetch(`/api/members/${id}`)
-      .then(r => r.json())
-      .then((m: Member) => {
-        setForm({
-          full_name: m.full_name ?? '',
-          phone: m.phone ?? '',
-          email: m.email ?? '',
-          date_of_birth: m.date_of_birth ?? '',
-          emergency_contact_name: m.emergency_contact_name ?? '',
-          emergency_contact_phone: m.emergency_contact_phone ?? '',
-          notes: m.notes ?? '',
-        })
+      .then(r => r.ok ? r.json() : null)
+      .then((m: Member | null) => {
+        if (m) {
+          setForm({
+            full_name: m.full_name ?? '',
+            phone: m.phone ?? '',
+            email: m.email ?? '',
+            date_of_birth: m.date_of_birth ?? '',
+            emergency_contact_name: m.emergency_contact_name ?? '',
+            emergency_contact_phone: m.emergency_contact_phone ?? '',
+            notes: m.notes ?? '',
+          })
+        }
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -85,31 +87,31 @@ export default function EditMemberPage({ params }: { params: Promise<{ id: strin
       <div style={{ padding: '28px 32px', maxWidth: '640px' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div className="form-grid-2">
-            <Field label="Full Name *">
-              <input value={form.full_name} onChange={e => set('full_name', e.target.value)} required />
+            <Field label="Full Name *" htmlFor="em-full-name">
+              <input id="em-full-name" value={form.full_name} onChange={e => set('full_name', e.target.value)} required />
             </Field>
-            <Field label="Phone">
-              <input value={form.phone} onChange={e => set('phone', e.target.value)} type="tel" />
+            <Field label="Phone" htmlFor="em-phone">
+              <input id="em-phone" value={form.phone} onChange={e => set('phone', e.target.value)} type="tel" />
             </Field>
           </div>
           <div className="form-grid-2">
-            <Field label="Email">
-              <input value={form.email} onChange={e => set('email', e.target.value)} type="email" />
+            <Field label="Email" htmlFor="em-email">
+              <input id="em-email" value={form.email} onChange={e => set('email', e.target.value)} type="email" />
             </Field>
-            <Field label="Date of Birth">
-              <input value={form.date_of_birth} onChange={e => set('date_of_birth', e.target.value)} type="date" />
+            <Field label="Date of Birth" htmlFor="em-dob">
+              <input id="em-dob" value={form.date_of_birth} onChange={e => set('date_of_birth', e.target.value)} type="date" />
             </Field>
           </div>
           <div className="form-grid-2" style={{ borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
-            <Field label="Emergency Contact Name">
-              <input value={form.emergency_contact_name} onChange={e => set('emergency_contact_name', e.target.value)} />
+            <Field label="Emergency Contact Name" htmlFor="em-ec-name">
+              <input id="em-ec-name" value={form.emergency_contact_name} onChange={e => set('emergency_contact_name', e.target.value)} />
             </Field>
-            <Field label="Emergency Contact Phone">
-              <input value={form.emergency_contact_phone} onChange={e => set('emergency_contact_phone', e.target.value)} type="tel" />
+            <Field label="Emergency Contact Phone" htmlFor="em-ec-phone">
+              <input id="em-ec-phone" value={form.emergency_contact_phone} onChange={e => set('emergency_contact_phone', e.target.value)} type="tel" />
             </Field>
           </div>
-          <Field label="Notes">
-            <textarea value={form.notes} onChange={e => set('notes', e.target.value)} rows={3} style={{ resize: 'vertical' }} />
+          <Field label="Notes" htmlFor="em-notes">
+            <textarea id="em-notes" value={form.notes} onChange={e => set('notes', e.target.value)} rows={3} style={{ resize: 'vertical' }} />
           </Field>
 
           {error && (

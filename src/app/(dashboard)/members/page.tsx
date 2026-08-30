@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Member, MemberWithSubscription, MemberStatus } from '@/types'
-import { formatDate, formatCurrency, daysUntil } from '@/lib/utils'
+import { MemberWithSubscription, MemberStatus } from '@/types'
+import { formatDate, daysUntil } from '@/lib/utils'
 import PageHeader from '@/components/ui/PageHeader'
 import Button from '@/components/ui/Button'
 import StatusBadge from '@/components/ui/StatusBadge'
@@ -31,8 +31,14 @@ export default function MembersPage() {
     if (statusFilter) params.set('status', statusFilter)
     const t = setTimeout(() => {
       fetch(`/api/members?${params}`, { signal: controller.signal })
-        .then(r => r.json())
-        .then(d => { setMembers(d); setLoading(false) })
+        .then(r => {
+          if (!r.ok) {
+            if (r.status === 401) { window.location.href = '/login'; return null }
+            throw new Error('Failed')
+          }
+          return r.json()
+        })
+        .then(d => { if (d) { setMembers(d); setLoading(false) } })
         .catch(err => { if (err.name !== 'AbortError') { setMembers([]); setLoading(false) } })
     }, search ? 300 : 0)
     return () => { clearTimeout(t); controller.abort() }
@@ -64,13 +70,34 @@ export default function MembersPage() {
       <div style={{ padding: '20px 32px' }}>
         {/* Search + Filter bar */}
         <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <input
-            type="text"
-            placeholder="Search by name, phone, or email..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{ maxWidth: '360px', flex: '1' }}
-          />
+          <div style={{ position: 'relative', flex: '1', maxWidth: '360px' }}>
+            <input
+              type="text"
+              placeholder="Search by name, phone, or email..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{ width: '100%', paddingRight: search ? '32px' : undefined }}
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                aria-label="Clear search"
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  lineHeight: 1,
+                  padding: 0,
+                }}
+              >×</button>
+            )}
+          </div>
           <div style={{ display: 'flex', gap: '4px' }}>
             {STATUS_FILTERS.map(f => (
               <button

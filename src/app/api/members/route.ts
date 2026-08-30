@@ -53,6 +53,10 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  if (!body.full_name?.trim()) {
+    return NextResponse.json({ error: 'Full name is required' }, { status: 400 })
+  }
+
   const { data: staff } = await supabase
     .from('staff_user')
     .select('gym_id')

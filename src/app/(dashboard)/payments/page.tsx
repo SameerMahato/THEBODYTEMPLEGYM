@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { Payment } from '@/types'
 import { formatDate, formatCurrency, PAYMENT_METHOD_LABELS } from '@/lib/utils'
@@ -11,20 +11,65 @@ interface PaymentRow extends Omit<Payment, 'staff_user' | 'member'> {
   staff_user: { full_name: string } | null
 }
 
+const TYPE_FILTERS = [
+  { label: 'All', value: '' },
+  { label: 'Payments', value: 'payment' },
+  { label: 'Adjustments', value: 'adjustment' },
+]
+
 export default function PaymentsPage() {
   const [payments, setPayments] = useState<PaymentRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [typeFilter, setTypeFilter] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
 
   useEffect(() => {
-    // Fetch recent payments across all members via member API with extended join
     fetch('/api/payments/recent')
-      .then(r => r.json())
-      .then(d => { setPayments(d ?? []); setLoading(false) })
+      .then(r => {
+        if (!r.ok) {
+          if (r.status === 401) { window.location.href = '/login'; return null }
+          throw new Error('Failed')
+        }
+        return r.json()
+      })
+      .then(d => { if (d) { setPayments(d ?? []); setLoading(false) } })
       .catch(() => setLoading(false))
   }, [])
 
-  const totalPayments = payments.filter(p => p.type === 'payment').reduce((s, p) => s + p.amount, 0)
-  const totalAdjustments = payments.filter(p => p.type === 'adjustment').reduce((s, p) => s + p.amount, 0)
+  const filtered = useMemo(() => {
+    return payments.filter(p => {
+      if (typeFilter && p.type !== typeFilter) return false
+      if (dateFrom && p.payment_date < dateFrom) return false
+      if (dateTo && p.payment_date > dateTo) return false
+      return true
+    })
+  }, [payments, typeFilter, dateFrom, dateTo])
+
+  const netRevenue = filtered.reduce((s, p) => s + p.amount, 0)
+
+  function FilterBtn({ f }: { f: typeof TYPE_FILTERS[number] }) {
+    const active = typeFilter === f.value
+    return (
+      <button
+        onClick={() => setTypeFilter(f.value)}
+        style={{
+          padding: '8px 14px',
+          border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+          background: active ? 'rgba(225,29,72,0.1)' : 'transparent',
+          color: active ? 'var(--accent)' : 'var(--text-secondary)',
+          borderRadius: '4px',
+          fontSize: '13px',
+          cursor: 'pointer',
+          fontFamily: 'var(--font-body)',
+          fontWeight: active ? 600 : 400,
+          transition: 'all 0.15s',
+        }}
+      >
+        {f.label}
+      </button>
+    )
+  }
 
   return (
     <div>
@@ -34,6 +79,37 @@ export default function PaymentsPage() {
       />
 
       <div style={{ padding: '20px 32px' }}>
+        {/* Filter bar */}
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {TYPE_FILTERS.map(f => <FilterBtn key={f.value} f={f} />)}
+          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={e => setDateFrom(e.target.value)}
+              style={{ padding: '7px 10px', fontSize: '13px', maxWidth: '160px' }}
+              aria-label="From date"
+            />
+            <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>–</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={e => setDateTo(e.target.value)}
+              style={{ padding: '7px 10px', fontSize: '13px', maxWidth: '160px' }}
+              aria-label="To date"
+            />
+            {(dateFrom || dateTo) && (
+              <button
+                onClick={() => { setDateFrom(''); setDateTo('') }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '18px', lineHeight: 1 }}
+                aria-label="Clear date filter"
+              >×</button>
+            )}
+          </div>
+        </div>
+
         {/* Summary bar */}
         <div style={{ display: 'flex', gap: '16px', marginBottom: '20px', flexWrap: 'wrap' }}>
           <div style={{
@@ -45,17 +121,31 @@ export default function PaymentsPage() {
             flexDirection: 'column',
             gap: '4px',
           }}>
-            <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Total Collected</div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 700, color: 'var(--accent)' }}>{formatCurrency(totalPayments + totalAdjustments)}</div>
+            <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Net Revenue</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 700, color: 'var(--accent)' }}>{formatCurrency(netRevenue)}</div>
+          </div>
+          <div style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border)',
+            borderRadius: '6px',
+            padding: '14px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px',
+          }}>
+            <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Records</div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 700, color: 'var(--text-primary)' }}>{filtered.length}</div>
           </div>
         </div>
 
         <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '6px', overflowX: 'auto' }}>
           {loading ? (
             <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>Loading...</div>
-          ) : payments.length === 0 ? (
+          ) : filtered.length === 0 ? (
             <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
-              No payment records yet. Go to a member&apos;s profile to record the first payment.
+              {payments.length === 0
+                ? "No payment records yet. Go to a member's profile to record the first payment."
+                : 'No records match the current filters.'}
             </div>
           ) : (
             <table>
@@ -72,7 +162,7 @@ export default function PaymentsPage() {
                 </tr>
               </thead>
               <tbody>
-                {payments.map(p => {
+                {filtered.map(p => {
                   const isAdj = p.type === 'adjustment'
                   return (
                     <tr key={p.id} style={isAdj ? { background: 'rgba(239,68,68,0.04)' } : {}}>

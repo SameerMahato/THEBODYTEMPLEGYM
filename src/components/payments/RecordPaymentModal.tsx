@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { MembershipPlan } from '@/types'
 import { calculateEndDate, formatCurrency } from '@/lib/utils'
 import Button from '@/components/ui/Button'
@@ -14,10 +14,10 @@ interface Props {
   onSuccess: () => void
 }
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({ label, required, htmlFor, children }: { label: string; required?: boolean; htmlFor?: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      <label style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
+      <label htmlFor={htmlFor} style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
         {label}{required && <span style={{ color: 'var(--danger)', marginLeft: '3px' }}>*</span>}
       </label>
       {children}
@@ -29,6 +29,7 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
   const [plans, setPlans] = useState<MembershipPlan[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const modalRef = useRef<HTMLDivElement>(null)
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -48,16 +49,47 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
     fetch('/api/plans').then(r => r.json()).then(setPlans).catch(() => {})
   }, [])
 
+  useEffect(() => {
+    const el = modalRef.current
+    if (!el) return
+    const focusable = el.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+
+    function trap(e: KeyboardEvent) {
+      if (e.key === 'Escape') { onClose(); return }
+      if (e.key !== 'Tab') return
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus() }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus() }
+      }
+    }
+
+    first?.focus()
+    document.addEventListener('keydown', trap)
+    return () => document.removeEventListener('keydown', trap)
+  }, [onClose])
+
   function set(key: string, value: string) {
     setForm(f => {
       const next = { ...f, [key]: value }
-      // Auto-fill amount from selected plan
       if (key === 'plan_id' && value) {
         const plan = plans.find(p => p.id === value)
         if (plan) next.amount = String(plan.price)
       }
       return next
     })
+  }
+
+  function switchType(t: string) {
+    setForm(f => ({
+      ...f,
+      type: t,
+      amount: t === 'adjustment' ? '' : f.amount,
+    }))
   }
 
   const selectedPlan = plans.find(p => p.id === form.plan_id)
@@ -104,20 +136,27 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
   }
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 100, padding: '24px',
-    }}>
-      <div style={{
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border)',
-        borderRadius: '6px',
-        width: '100%',
-        maxWidth: '520px',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-      }}>
+    <div
+      style={{
+        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 100, padding: '24px',
+      }}
+      onClick={onClose}
+    >
+      <div
+        ref={modalRef}
+        style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border)',
+          borderRadius: '6px',
+          width: '100%',
+          maxWidth: '520px',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
         {/* Header */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -129,21 +168,21 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
             </div>
             <div style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '2px' }}>{memberName}</div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px', lineHeight: 1 }}>
+          <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px', lineHeight: 1 }}>
             ×
           </button>
         </div>
 
         <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
-          {/* Type toggle (only if not forced to adjustment) */}
+          {/* Type toggle */}
           {!isAdjustment && (
-            <Field label="Entry Type">
+            <Field label="Entry Type" htmlFor="payment-type">
               <div style={{ display: 'flex', gap: '8px' }}>
                 {['payment', 'adjustment'].map(t => (
                   <button
                     key={t}
                     type="button"
-                    onClick={() => set('type', t)}
+                    onClick={() => switchType(t)}
                     style={{
                       flex: 1,
                       padding: '8px',
@@ -180,8 +219,9 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
           )}
 
           <div className="form-grid-2">
-            <Field label={form.type === 'adjustment' ? 'Adjustment Amount (₹) *' : 'Amount (₹) *'} required>
+            <Field label={form.type === 'adjustment' ? 'Adjustment Amount (₹) *' : 'Amount (₹) *'} required htmlFor="payment-amount">
               <input
+                id="payment-amount"
                 value={form.amount}
                 onChange={e => set('amount', e.target.value)}
                 placeholder={form.type === 'adjustment' ? '-500' : '1500'}
@@ -190,13 +230,13 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
                 required
               />
             </Field>
-            <Field label="Date *" required>
-              <input value={form.payment_date} onChange={e => set('payment_date', e.target.value)} type="date" required />
+            <Field label="Date *" required htmlFor="payment-date">
+              <input id="payment-date" value={form.payment_date} onChange={e => set('payment_date', e.target.value)} type="date" required />
             </Field>
           </div>
 
-          <Field label="Payment Method *" required>
-            <select value={form.payment_method} onChange={e => set('payment_method', e.target.value)}>
+          <Field label="Payment Method *" required htmlFor="payment-method">
+            <select id="payment-method" value={form.payment_method} onChange={e => set('payment_method', e.target.value)}>
               <option value="cash">Cash</option>
               <option value="upi">UPI</option>
               <option value="bank_transfer">Bank Transfer</option>
@@ -207,8 +247,8 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
 
           {form.type === 'payment' && (
             <>
-              <Field label="Membership Plan">
-                <select value={form.plan_id} onChange={e => set('plan_id', e.target.value)}>
+              <Field label="Membership Plan" htmlFor="payment-plan">
+                <select id="payment-plan" value={form.plan_id} onChange={e => set('plan_id', e.target.value)}>
                   <option value="">— Select plan —</option>
                   {plans.map(p => (
                     <option key={p.id} value={p.id}>
@@ -220,11 +260,11 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
 
               {selectedPlan && (
                 <div className="form-grid-2">
-                  <Field label="Period Start">
-                    <input value={form.period_start} onChange={e => set('period_start', e.target.value)} type="date" />
+                  <Field label="Period Start" htmlFor="period-start">
+                    <input id="period-start" value={form.period_start} onChange={e => set('period_start', e.target.value)} type="date" />
                   </Field>
-                  <Field label="Period End (auto)">
-                    <input value={endDate ? new Date(endDate + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''} readOnly style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-strong)' }} />
+                  <Field label="Period End (auto)" htmlFor="period-end">
+                    <input id="period-end" value={endDate ? new Date(endDate + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''} readOnly style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-strong)' }} />
                   </Field>
                 </div>
               )}
@@ -233,16 +273,18 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
 
           {form.type === 'adjustment' && (
             <>
-              <Field label="Reference to Original Payment ID *" required>
+              <Field label="Reference to Original Payment ID *" required htmlFor="related-payment">
                 <input
+                  id="related-payment"
                   value={form.related_payment_id}
                   onChange={e => set('related_payment_id', e.target.value)}
                   placeholder="Paste the original payment UUID"
                   required
                 />
               </Field>
-              <Field label="Reason for Adjustment *" required>
+              <Field label="Reason for Adjustment *" required htmlFor="adjustment-reason">
                 <textarea
+                  id="adjustment-reason"
                   value={form.reason}
                   onChange={e => set('reason', e.target.value)}
                   placeholder="e.g. Wrong amount entered — original was ₹1500, should be ₹1200"
@@ -254,8 +296,9 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
             </>
           )}
 
-          <Field label="Notes">
+          <Field label="Notes" htmlFor="payment-notes">
             <textarea
+              id="payment-notes"
               value={form.notes}
               onChange={e => set('notes', e.target.value)}
               placeholder="Optional note for staff..."

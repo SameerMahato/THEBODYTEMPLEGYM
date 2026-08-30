@@ -5,10 +5,10 @@ export const dynamic = 'force-dynamic'
 import { useState } from 'react'
 import QRCode from 'react-qr-code'
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, htmlFor, children }: { label: string; htmlFor?: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      <label style={{
+      <label htmlFor={htmlFor} style={{
         fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em',
         textTransform: 'uppercase', color: 'var(--text-secondary)',
       }}>{label}</label>
@@ -121,21 +121,21 @@ export default function JoinPage() {
           borderRadius: '6px', padding: '28px',
         }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-            <Field label="Full Name *">
-              <input value={form.full_name} onChange={e => set('full_name', e.target.value)} placeholder="Your full name" required />
+            <Field label="Full Name *" htmlFor="j-full-name">
+              <input id="j-full-name" value={form.full_name} onChange={e => set('full_name', e.target.value)} placeholder="Your full name" required />
             </Field>
 
             <div className="form-grid-2">
-              <Field label="Phone">
-                <input value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+91 98765 43210" type="tel" />
+              <Field label="Phone" htmlFor="j-phone">
+                <input id="j-phone" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+91 98765 43210" type="tel" />
               </Field>
-              <Field label="Date of Birth">
-                <input value={form.date_of_birth} onChange={e => set('date_of_birth', e.target.value)} type="date" />
+              <Field label="Date of Birth" htmlFor="j-dob">
+                <input id="j-dob" value={form.date_of_birth} onChange={e => set('date_of_birth', e.target.value)} type="date" />
               </Field>
             </div>
 
-            <Field label="Email">
-              <input value={form.email} onChange={e => set('email', e.target.value)} placeholder="you@example.com" type="email" />
+            <Field label="Email" htmlFor="j-email">
+              <input id="j-email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="you@example.com" type="email" />
             </Field>
 
             <div style={{ borderTop: '1px solid var(--border)', paddingTop: '18px' }}>
@@ -143,11 +143,11 @@ export default function JoinPage() {
                 Emergency Contact
               </div>
               <div className="form-grid-2">
-                <Field label="Name">
-                  <input value={form.emergency_contact_name} onChange={e => set('emergency_contact_name', e.target.value)} placeholder="Name" />
+                <Field label="Name" htmlFor="j-ec-name">
+                  <input id="j-ec-name" value={form.emergency_contact_name} onChange={e => set('emergency_contact_name', e.target.value)} placeholder="Name" />
                 </Field>
-                <Field label="Phone">
-                  <input value={form.emergency_contact_phone} onChange={e => set('emergency_contact_phone', e.target.value)} placeholder="Phone" type="tel" />
+                <Field label="Phone" htmlFor="j-ec-phone">
+                  <input id="j-ec-phone" value={form.emergency_contact_phone} onChange={e => set('emergency_contact_phone', e.target.value)} placeholder="Phone" type="tel" />
                 </Field>
               </div>
             </div>
@@ -174,19 +174,21 @@ export default function JoinPage() {
           </form>
         </div>
 
-        {/* QR code (visible only in admin context — for printing) */}
-        <details style={{ marginTop: '24px' }}>
-          <summary style={{ cursor: 'pointer', color: 'var(--text-muted)', fontSize: '12px', letterSpacing: '0.05em' }}>
-            Print QR code for this page
-          </summary>
+        {/* QR code for front desk — scan to open this page */}
+        <div style={{ marginTop: '32px', textAlign: 'center' }}>
+          <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '16px' }}>
+            Print this QR code for the front desk
+          </div>
           <div style={{
-            marginTop: '16px', background: '#fff',
-            padding: '20px', borderRadius: '6px', textAlign: 'center', display: 'inline-block',
+            display: 'inline-block',
+            background: '#fff',
+            padding: '20px',
+            borderRadius: '6px',
           }}>
             <QRCode value={joinUrl} size={160} />
             <div style={{ marginTop: '8px', fontSize: '11px', color: '#333', fontFamily: 'monospace' }}>{joinUrl}</div>
           </div>
-        </details>
+        </div>
       </div>
     </div>
   )

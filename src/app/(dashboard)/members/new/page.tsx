@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation'
 import PageHeader from '@/components/ui/PageHeader'
 import Button from '@/components/ui/Button'
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, htmlFor, children }: { label: string; htmlFor?: string; children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-      <label style={{
+      <label htmlFor={htmlFor} style={{
         fontSize: '11px',
         fontWeight: 600,
         letterSpacing: '0.1em',
@@ -67,38 +67,39 @@ export default function NewMemberPage() {
       <div style={{ padding: '28px 32px', maxWidth: '640px' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <div className="form-grid-2">
-            <Field label="Full Name *">
-              <input value={form.full_name} onChange={e => set('full_name', e.target.value)} placeholder="Rahul Sharma" required />
+            <Field label="Full Name *" htmlFor="m-full-name">
+              <input id="m-full-name" value={form.full_name} onChange={e => set('full_name', e.target.value)} placeholder="Rahul Sharma" required />
             </Field>
-            <Field label="Phone">
-              <input value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+91 98765 43210" type="tel" />
+            <Field label="Phone" htmlFor="m-phone">
+              <input id="m-phone" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+91 98765 43210" type="tel" />
             </Field>
           </div>
 
           <div className="form-grid-2">
-            <Field label="Email">
-              <input value={form.email} onChange={e => set('email', e.target.value)} placeholder="rahul@example.com" type="email" />
+            <Field label="Email" htmlFor="m-email">
+              <input id="m-email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="rahul@example.com" type="email" />
             </Field>
-            <Field label="Date of Birth">
-              <input value={form.date_of_birth} onChange={e => set('date_of_birth', e.target.value)} type="date" />
+            <Field label="Date of Birth" htmlFor="m-dob">
+              <input id="m-dob" value={form.date_of_birth} onChange={e => set('date_of_birth', e.target.value)} type="date" />
             </Field>
           </div>
 
-          <Field label="Join Date">
-            <input value={form.join_date} onChange={e => set('join_date', e.target.value)} type="date" required style={{ maxWidth: '200px' }} />
+          <Field label="Join Date" htmlFor="m-join-date">
+            <input id="m-join-date" value={form.join_date} onChange={e => set('join_date', e.target.value)} type="date" required style={{ maxWidth: '200px' }} />
           </Field>
 
           <div className="form-grid-2" style={{ borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
-            <Field label="Emergency Contact Name">
-              <input value={form.emergency_contact_name} onChange={e => set('emergency_contact_name', e.target.value)} placeholder="Name" />
+            <Field label="Emergency Contact Name" htmlFor="m-ec-name">
+              <input id="m-ec-name" value={form.emergency_contact_name} onChange={e => set('emergency_contact_name', e.target.value)} placeholder="Name" />
             </Field>
-            <Field label="Emergency Contact Phone">
-              <input value={form.emergency_contact_phone} onChange={e => set('emergency_contact_phone', e.target.value)} placeholder="+91 98765 43210" type="tel" />
+            <Field label="Emergency Contact Phone" htmlFor="m-ec-phone">
+              <input id="m-ec-phone" value={form.emergency_contact_phone} onChange={e => set('emergency_contact_phone', e.target.value)} placeholder="+91 98765 43210" type="tel" />
             </Field>
           </div>
 
-          <Field label="Notes">
+          <Field label="Notes" htmlFor="m-notes">
             <textarea
+              id="m-notes"
               value={form.notes}
               onChange={e => set('notes', e.target.value)}
               placeholder="Any notes for staff..."

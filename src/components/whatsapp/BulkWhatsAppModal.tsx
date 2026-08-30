@@ -112,7 +112,7 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
               </div>
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px', lineHeight: 1 }}>×</button>
+          <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px', lineHeight: 1 }}>×</button>
         </div>
 
         {/* Progress + Send All */}

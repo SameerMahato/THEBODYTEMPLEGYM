@@ -1,16 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState, use } from 'react'
 import { useRouter } from 'next/navigation'
 import PageHeader from '@/components/ui/PageHeader'
 import Button from '@/components/ui/Button'
-
-const PRESETS = [
-  { name: 'Monthly', duration_days: 30, price: '' },
-  { name: 'Quarterly', duration_days: 90, price: '' },
-  { name: 'Half-Yearly', duration_days: 180, price: '' },
-  { name: 'Annual', duration_days: 365, price: '' },
-]
 
 function Field({ label, htmlFor, children }: { label: string; htmlFor?: string; children: React.ReactNode }) {
   return (
@@ -23,15 +16,23 @@ function Field({ label, htmlFor, children }: { label: string; htmlFor?: string; 
   )
 }
 
-export default function NewPlanPage() {
+export default function EditPlanPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const router = useRouter()
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({ name: '', price: '', duration_days: '' })
 
-  function applyPreset(preset: typeof PRESETS[0]) {
-    setForm(f => ({ ...f, name: preset.name, duration_days: String(preset.duration_days) }))
-  }
+  useEffect(() => {
+    fetch(`/api/plans/${id}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d) setForm({ name: d.name, price: String(d.price), duration_days: String(d.duration_days) })
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [id])
 
   function set(key: string, value: string) {
     setForm(f => ({ ...f, [key]: value }))
@@ -39,11 +40,11 @@ export default function NewPlanPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true)
+    setSaving(true)
     setError('')
 
-    const res = await fetch('/api/plans', {
-      method: 'POST',
+    const res = await fetch(`/api/plans/${id}`, {
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: form.name,
@@ -56,51 +57,24 @@ export default function NewPlanPage() {
       router.push('/plans')
     } else {
       const data = await res.json()
-      setError(data.error || 'Failed to create plan')
-      setLoading(false)
+      setError(data.error || 'Failed to update plan')
+      setSaving(false)
     }
   }
 
+  if (loading) return <div style={{ padding: '40px 32px', color: 'var(--text-muted)' }}>Loading...</div>
+
   return (
     <div>
-      <PageHeader title="NEW PLAN" subtitle="Create a membership plan type" />
+      <PageHeader title="EDIT PLAN" subtitle="Update membership plan details" />
       <div style={{ padding: '28px 32px', maxWidth: '480px' }}>
-        {/* Presets */}
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '10px' }}>
-            Quick Presets
-          </div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {PRESETS.map(p => (
-              <button
-                key={p.name}
-                type="button"
-                onClick={() => applyPreset(p)}
-                style={{
-                  padding: '6px 14px',
-                  border: `1px solid ${form.name === p.name ? 'var(--accent)' : 'var(--border)'}`,
-                  background: form.name === p.name ? 'rgba(225,29,72,0.1)' : 'transparent',
-                  color: form.name === p.name ? 'var(--accent)' : 'var(--text-secondary)',
-                  borderRadius: '4px',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-body)',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {p.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <Field label="Plan Name *" htmlFor="plan-name">
             <input
               id="plan-name"
               value={form.name}
               onChange={e => set('name', e.target.value)}
-              placeholder="e.g. Monthly, Custom 45-Day"
+              placeholder="e.g. Monthly"
               required
             />
           </Field>
@@ -138,8 +112,8 @@ export default function NewPlanPage() {
           )}
 
           <div style={{ display: 'flex', gap: '12px' }}>
-            <Button type="submit" loading={loading}>Create Plan</Button>
-            <Button type="button" variant="secondary" onClick={() => router.back()}>Cancel</Button>
+            <Button type="submit" loading={saving}>Save Changes</Button>
+            <Button type="button" variant="secondary" onClick={() => router.push('/plans')}>Cancel</Button>
           </div>
         </form>
       </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Button from '@/components/ui/Button'
 
 interface Props {
@@ -49,6 +49,31 @@ export default function WhatsAppModal({ memberName, phone, planName, daysRemaini
   const templates = TEMPLATES(memberName, planName, daysRemaining)
   const [selected, setSelected] = useState('renewal')
   const [message, setMessage] = useState(templates[0].message)
+  const modalRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = modalRef.current
+    if (!el) return
+    const focusable = el.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+
+    function trap(e: KeyboardEvent) {
+      if (e.key === 'Escape') { onClose(); return }
+      if (e.key !== 'Tab') return
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last?.focus() }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first?.focus() }
+      }
+    }
+
+    first?.focus()
+    document.addEventListener('keydown', trap)
+    return () => document.removeEventListener('keydown', trap)
+  }, [onClose])
 
   function pickTemplate(id: string) {
     setSelected(id)
@@ -64,20 +89,27 @@ export default function WhatsAppModal({ memberName, phone, planName, daysRemaini
   }
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 100, padding: '24px',
-    }}>
-      <div style={{
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border)',
-        borderRadius: '10px',
-        width: '100%',
-        maxWidth: '520px',
-        maxHeight: '90vh',
-        overflowY: 'auto',
-      }}>
+    <div
+      style={{
+        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 100, padding: '24px',
+      }}
+      onClick={onClose}
+    >
+      <div
+        ref={modalRef}
+        style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border)',
+          borderRadius: '10px',
+          width: '100%',
+          maxWidth: '520px',
+          maxHeight: '90vh',
+          overflowY: 'auto',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
         {/* Header */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -103,7 +135,7 @@ export default function WhatsAppModal({ memberName, phone, planName, daysRemaini
               </div>
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px', lineHeight: 1 }}>×</button>
+          <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px', lineHeight: 1 }}>×</button>
         </div>
 
         <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
@@ -151,6 +183,7 @@ export default function WhatsAppModal({ memberName, phone, planName, daysRemaini
               </span>
             </div>
             <textarea
+              id="whatsapp-message"
               value={message}
               onChange={e => { setMessage(e.target.value); setSelected('custom') }}
               rows={8}
