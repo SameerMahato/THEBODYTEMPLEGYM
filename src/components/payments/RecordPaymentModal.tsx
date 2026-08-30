@@ -179,7 +179,7 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+          <div className="form-grid-2">
             <Field label={form.type === 'adjustment' ? 'Adjustment Amount (₹) *' : 'Amount (₹) *'} required>
               <input
                 value={form.amount}
@@ -219,7 +219,7 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
               </Field>
 
               {selectedPlan && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                <div className="form-grid-2">
                   <Field label="Period Start">
                     <input value={form.period_start} onChange={e => set('period_start', e.target.value)} type="date" />
                   </Field>

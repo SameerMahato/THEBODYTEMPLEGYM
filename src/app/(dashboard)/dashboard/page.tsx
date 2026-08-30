@@ -44,10 +44,10 @@ export default function DashboardPage() {
   const alertCount = expiringSoon.length + overdue.length + pending.length
 
   return (
-    <div style={{ padding: '32px 36px', maxWidth: '1400px' }} className="fade-up">
+    <div className="dash-page fade-up">
 
       {/* Header */}
-      <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <p style={{
             fontFamily: 'var(--font-body)',

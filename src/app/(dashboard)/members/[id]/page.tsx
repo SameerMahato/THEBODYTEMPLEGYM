@@ -107,7 +107,7 @@ export default function MemberDetailPage({ params }: { params: Promise<{ id: str
         }
       />
 
-      <div style={{ padding: '24px 32px', display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '20px', maxWidth: '1200px' }}>
+      <div className="member-detail-grid">
         {/* Left column: Member info + Current plan */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Status */}

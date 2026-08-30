@@ -66,7 +66,7 @@ export default function NewMemberPage() {
 
       <div style={{ padding: '28px 32px', maxWidth: '640px' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="form-grid-2">
             <Field label="Full Name *">
               <input value={form.full_name} onChange={e => set('full_name', e.target.value)} placeholder="Rahul Sharma" required />
             </Field>
@@ -75,7 +75,7 @@ export default function NewMemberPage() {
             </Field>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="form-grid-2">
             <Field label="Email">
               <input value={form.email} onChange={e => set('email', e.target.value)} placeholder="rahul@example.com" type="email" />
             </Field>
@@ -88,13 +88,7 @@ export default function NewMemberPage() {
             <input value={form.join_date} onChange={e => set('join_date', e.target.value)} type="date" required style={{ maxWidth: '200px' }} />
           </Field>
 
-          <div style={{
-            borderTop: '1px solid var(--border)',
-            paddingTop: '20px',
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '16px',
-          }}>
+          <div className="form-grid-2" style={{ borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
             <Field label="Emergency Contact Name">
               <input value={form.emergency_contact_name} onChange={e => set('emergency_contact_name', e.target.value)} placeholder="Name" />
             </Field>

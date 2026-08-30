@@ -8,13 +8,7 @@ interface PageHeaderProps {
 
 export default function PageHeader({ title, subtitle, action }: PageHeaderProps) {
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'flex-end',
-      justifyContent: 'space-between',
-      padding: '28px 32px 20px',
-      borderBottom: '1px solid var(--border)',
-    }}>
+    <div className="page-header">
       <div>
         <h1 style={{
           fontFamily: 'var(--font-display)',
@@ -32,7 +26,7 @@ export default function PageHeader({ title, subtitle, action }: PageHeaderProps)
           }}>{subtitle}</p>
         )}
       </div>
-      {action && <div>{action}</div>}
+      {action && <div style={{ flexShrink: 0 }}>{action}</div>}
     </div>
   )
 }

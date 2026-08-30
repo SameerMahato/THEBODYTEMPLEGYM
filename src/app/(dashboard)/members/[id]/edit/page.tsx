@@ -84,7 +84,7 @@ export default function EditMemberPage({ params }: { params: Promise<{ id: strin
       <PageHeader title="EDIT MEMBER" />
       <div style={{ padding: '28px 32px', maxWidth: '640px' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="form-grid-2">
             <Field label="Full Name *">
               <input value={form.full_name} onChange={e => set('full_name', e.target.value)} required />
             </Field>
@@ -92,7 +92,7 @@ export default function EditMemberPage({ params }: { params: Promise<{ id: strin
               <input value={form.phone} onChange={e => set('phone', e.target.value)} type="tel" />
             </Field>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="form-grid-2">
             <Field label="Email">
               <input value={form.email} onChange={e => set('email', e.target.value)} type="email" />
             </Field>
@@ -100,7 +100,7 @@ export default function EditMemberPage({ params }: { params: Promise<{ id: strin
               <input value={form.date_of_birth} onChange={e => set('date_of_birth', e.target.value)} type="date" />
             </Field>
           </div>
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="form-grid-2" style={{ borderTop: '1px solid var(--border)', paddingTop: '20px' }}>
             <Field label="Emergency Contact Name">
               <input value={form.emergency_contact_name} onChange={e => set('emergency_contact_name', e.target.value)} />
             </Field>

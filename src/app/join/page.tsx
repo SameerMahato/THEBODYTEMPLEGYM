@@ -125,7 +125,7 @@ export default function JoinPage() {
               <input value={form.full_name} onChange={e => set('full_name', e.target.value)} placeholder="Your full name" required />
             </Field>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <div className="form-grid-2">
               <Field label="Phone">
                 <input value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+91 98765 43210" type="tel" />
               </Field>
@@ -142,7 +142,7 @@ export default function JoinPage() {
               <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '12px' }}>
                 Emergency Contact
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div className="form-grid-2">
                 <Field label="Name">
                   <input value={form.emergency_contact_name} onChange={e => set('emergency_contact_name', e.target.value)} placeholder="Name" />
                 </Field>
