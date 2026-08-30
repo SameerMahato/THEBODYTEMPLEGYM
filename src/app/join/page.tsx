@@ -26,8 +26,6 @@ export default function JoinPage() {
     phone: '',
     email: '',
     date_of_birth: '',
-    emergency_contact_name: '',
-    emergency_contact_phone: '',
   })
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
@@ -137,20 +135,6 @@ export default function JoinPage() {
             <Field label="Email" htmlFor="j-email">
               <input id="j-email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="you@example.com" type="email" />
             </Field>
-
-            <div style={{ borderTop: '1px solid var(--border)', paddingTop: '18px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: '12px' }}>
-                Emergency Contact
-              </div>
-              <div className="form-grid-2">
-                <Field label="Name" htmlFor="j-ec-name">
-                  <input id="j-ec-name" value={form.emergency_contact_name} onChange={e => set('emergency_contact_name', e.target.value)} placeholder="Name" />
-                </Field>
-                <Field label="Phone" htmlFor="j-ec-phone">
-                  <input id="j-ec-phone" value={form.emergency_contact_phone} onChange={e => set('emergency_contact_phone', e.target.value)} placeholder="Phone" type="tel" />
-                </Field>
-              </div>
-            </div>
 
             {error && (
               <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid var(--danger)', borderRadius: '4px', padding: '10px 14px', color: 'var(--danger)', fontSize: '13px' }}>
