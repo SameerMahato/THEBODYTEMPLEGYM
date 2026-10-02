@@ -8,8 +8,10 @@ import Button from '@/components/ui/Button'
 interface Props {
   memberId: string
   memberName: string
+  plans: MembershipPlan[]
   isAdjustment?: boolean
   relatedPaymentId?: string
+  renewalStartDate?: string   // pre-fills period_start for renewals
   onClose: () => void
   onSuccess: () => void
 }
@@ -25,13 +27,14 @@ function Field({ label, required, htmlFor, children }: { label: string; required
   )
 }
 
-export default function RecordPaymentModal({ memberId, memberName, isAdjustment, relatedPaymentId, onClose, onSuccess }: Props) {
-  const [plans, setPlans] = useState<MembershipPlan[]>([])
+export default function RecordPaymentModal({ memberId, memberName, plans, isAdjustment, relatedPaymentId, renewalStartDate, onClose, onSuccess }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const modalRef = useRef<HTMLDivElement>(null)
 
   const today = new Date().toISOString().split('T')[0]
+
+  const isRenewal = !!renewalStartDate
 
   const [form, setForm] = useState({
     type: isAdjustment ? 'adjustment' : 'payment',
@@ -39,19 +42,11 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
     payment_date: today,
     payment_method: 'cash',
     plan_id: '',
-    period_start: today,
+    period_start: renewalStartDate ?? today,
     notes: '',
     reason: '',
     related_payment_id: relatedPaymentId ?? '',
   })
-
-  useEffect(() => {
-    // H-3: Check r.ok before parsing to prevent unhandled JSON parse errors on 4xx/5xx
-    fetch('/api/plans')
-      .then(r => r.ok ? r.json() : [])
-      .then(setPlans)
-      .catch(() => {})
-  }, [])
 
   useEffect(() => {
     const el = modalRef.current
@@ -168,7 +163,7 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
         }}>
           <div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--text-primary)' }}>
-              {isAdjustment ? 'RECORD ADJUSTMENT' : 'RECORD PAYMENT'}
+              {isAdjustment ? 'RECORD ADJUSTMENT' : isRenewal ? 'RENEW PLAN' : 'RECORD PAYMENT'}
             </div>
             <div style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '2px' }}>{memberName}</div>
           </div>
@@ -178,8 +173,23 @@ export default function RecordPaymentModal({ memberId, memberName, isAdjustment,
         </div>
 
         <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+          {/* Renewal banner */}
+          {isRenewal && (
+            <div style={{
+              background: 'rgba(225,29,72,0.07)',
+              border: '1px solid rgba(225,29,72,0.25)',
+              borderRadius: '4px',
+              padding: '10px 14px',
+              fontSize: '12px',
+              color: 'var(--text-secondary)',
+              lineHeight: 1.6,
+            }}>
+              <span style={{ fontWeight: 600, color: 'var(--accent)' }}>Renewal</span> — new plan starts on <strong style={{ color: 'var(--text-primary)' }}>{renewalStartDate}</strong>, continuing from the current subscription end date.
+            </div>
+          )}
+
           {/* Type toggle */}
-          {!isAdjustment && (
+          {!isAdjustment && !isRenewal && (
             <Field label="Entry Type" htmlFor="payment-type">
               <div style={{ display: 'flex', gap: '8px' }}>
                 {['payment', 'adjustment'].map(t => (

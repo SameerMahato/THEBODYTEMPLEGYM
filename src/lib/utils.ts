@@ -17,6 +17,20 @@ export function daysUntil(date: string) {
   return differenceInDays(parseISO(date), new Date())
 }
 
+// Server renders run in UTC on Vercel; the gym operates in IST (UTC+5:30), so
+// a bare `new Date()` reports yesterday's date between 00:00 and 05:30 local.
+export const GYM_TIME_ZONE = 'Asia/Kolkata'
+
+export function gymToday(): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: GYM_TIME_ZONE }).format(new Date())
+}
+
+export function addDaysISO(isoDate: string, days: number): string {
+  const d = new Date(isoDate + 'T00:00:00Z')
+  d.setUTCDate(d.getUTCDate() + days)
+  return d.toISOString().split('T')[0]
+}
+
 export function calculateEndDate(startDate: string, durationDays: number): string {
   const start = parseISO(startDate)
   const end = new Date(start)

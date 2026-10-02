@@ -6,7 +6,7 @@ import { daysUntil } from '@/lib/utils'
 interface SubWithMember {
   id: string
   end_date: string
-  membership_plan: { name: string } | null
+  membership_plan: { name: string | null } | null
   member: { id: string; full_name: string; phone: string | null; status: string } | null
 }
 
@@ -56,7 +56,7 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
   function sendOne(s: typeof allItems[number]) {
     if (!s.member?.phone) return
     const days = daysUntil(s.end_date)
-    const msg = buildMessage(s.member.full_name, s.membership_plan?.name, days, s.type)
+    const msg = buildMessage(s.member.full_name, s.membership_plan?.name ?? undefined, days, s.type)
     openWhatsApp(s.member.phone, msg)
     setSent(prev => new Set([...prev, s.id]))
   }

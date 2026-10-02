@@ -1,10 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 
 const NAV = [
   { href: '/dashboard',       label: 'Dashboard',       icon: <DashIcon /> },
@@ -15,24 +12,17 @@ const NAV = [
   { href: '/join-qr',         label: 'Join QR Code',    icon: <QRIcon /> },
 ]
 
-export default function Sidebar({ onClose }: { onClose?: () => void }) {
+export default function Sidebar({ pendingCount, onClose }: {
+  pendingCount: number
+  onClose?: () => void
+}) {
   const pathname = usePathname()
   const router = useRouter()
-  // L-1: useMemo so the client is not recreated on every render
-  const supabase = useMemo(() => createClient(), [])
-  const [pendingCount, setPendingCount] = useState(0)
-
-  useEffect(() => {
-    supabase
-      .from('member')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'pending')
-      .then(({ count }) => setPendingCount(count ?? 0))
-  }, [pathname])
 
   async function handleSignOut() {
-    await supabase.auth.signOut()
-    router.push('/login')
+    await fetch('/api/signout', { method: 'POST' })
+    router.replace('/login')
+    router.refresh()
   }
 
   return (
@@ -117,6 +107,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
               key={item.href}
               href={item.href}
               onClick={onClose}
+              className={`nav-link${isActive ? ' active' : ''}`}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -130,20 +121,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
                 background: isActive ? 'var(--accent-glow)' : 'transparent',
                 borderRadius: 'var(--radius-sm)',
                 border: isActive ? '1px solid rgba(225,29,72,0.2)' : '1px solid transparent',
-                transition: 'all 0.15s',
                 position: 'relative',
-              }}
-              onMouseEnter={e => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLElement).style.background = 'var(--bg-hover)'
-                  ;(e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'
-                }
-              }}
-              onMouseLeave={e => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLElement).style.background = 'transparent'
-                  ;(e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'
-                }
               }}
             >
               <span style={{
@@ -179,6 +157,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
       }}>
         <button
           onClick={handleSignOut}
+          className="signout-btn"
           style={{
             width: '100%',
             padding: '10px 12px',
@@ -192,19 +171,6 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
-            transition: 'all 0.15s',
-          }}
-          onMouseEnter={e => {
-            const el = e.currentTarget
-            el.style.borderColor = 'var(--accent)'
-            el.style.color = 'var(--accent)'
-            el.style.background = 'var(--accent-glow)'
-          }}
-          onMouseLeave={e => {
-            const el = e.currentTarget
-            el.style.borderColor = 'var(--border-strong)'
-            el.style.color = 'var(--text-secondary)'
-            el.style.background = 'transparent'
           }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

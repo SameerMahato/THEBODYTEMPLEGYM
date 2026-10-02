@@ -1,63 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-
-async function getStaff(supabase: Awaited<ReturnType<typeof createClient>>) {
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-  const { data: staff } = await supabase
-    .from('staff_user')
-    .select('gym_id')
-    .eq('id', user.id)
-    .single()
-  return staff ? { user, staff } : null
-}
+import { getStaffContext } from '@/lib/auth'
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params
-  const supabase = await createClient()
+  const [{ id }, ctx] = await Promise.all([params, getStaffContext()])
+  if (!ctx) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const auth = await getStaff(supabase)
-  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // These two reads are independent — previously they ran back to back.
+  const [memberResult, paymentsResult] = await Promise.all([
+    ctx.supabase
+      .from('member')
+      .select(`*, member_subscription(*, membership_plan(*))`)
+      .eq('id', id)
+      .eq('gym_id', ctx.gymId)
+      .single(),
+    ctx.supabase
+      .from('payment')
+      .select(`*, staff_user(full_name)`)
+      .eq('member_id', id)
+      .eq('gym_id', ctx.gymId)
+      .order('payment_date', { ascending: false }),
+  ])
 
-  const { data: member, error } = await supabase
-    .from('member')
-    .select(`
-      *,
-      member_subscription(
-        *, membership_plan(*)
-      )
-    `)
-    .eq('id', id)
-    .eq('gym_id', auth.staff.gym_id)
-    .single()
+  if (memberResult.error) {
+    return NextResponse.json({ error: memberResult.error.message }, { status: 404 })
+  }
+  if (paymentsResult.error) {
+    return NextResponse.json({ error: paymentsResult.error.message }, { status: 500 })
+  }
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 404 })
-
-  const { data: payments, error: pe } = await supabase
-    .from('payment')
-    .select(`*, staff_user(full_name)`)
-    .eq('member_id', id)
-    .eq('gym_id', auth.staff.gym_id)
-    .order('payment_date', { ascending: false })
-
-  if (pe) return NextResponse.json({ error: pe.message }, { status: 500 })
-
-  return NextResponse.json({ ...member, payments })
+  return NextResponse.json({ ...memberResult.data, payments: paymentsResult.data })
 }
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params
-  const supabase = await createClient()
-  const body = await request.json()
-
-  const auth = await getStaff(supabase)
-  if (!auth) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const [{ id }, ctx, body] = await Promise.all([params, getStaffContext(), request.json()])
+  if (!ctx) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const allowed = [
     'full_name', 'phone', 'email', 'date_of_birth',
@@ -68,11 +50,11 @@ export async function PATCH(
     if (key in body) updates[key] = body[key]
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await ctx.supabase
     .from('member')
     .update(updates)
     .eq('id', id)
-    .eq('gym_id', auth.staff.gym_id)
+    .eq('gym_id', ctx.gymId)
     .select()
     .single()
 

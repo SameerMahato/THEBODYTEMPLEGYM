@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 
 type Variant = 'primary' | 'secondary' | 'danger' | 'ghost'

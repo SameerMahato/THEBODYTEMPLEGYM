@@ -92,3 +92,73 @@ export interface DashboardStats {
 export interface MemberWithSubscription extends Member {
   current_subscription: MemberSubscription | null
 }
+
+// ── List shapes shared between the server data layer and the client tables.
+// Kept here (and not in src/lib/data/*) so client components can import them
+// without dragging next/headers into the browser bundle.
+
+export const MEMBERS_PAGE_SIZE = 50
+export const PAYMENTS_PAGE_SIZE = 100
+
+export interface MemberRow {
+  id: string
+  full_name: string
+  phone: string | null
+  email: string | null
+  status: string
+  join_date: string
+  created_at: string
+  current_subscription: {
+    end_date: string
+    membership_plan: { name: string } | null
+  } | null
+}
+
+export interface MemberListResult {
+  members: MemberRow[]
+  total: number
+}
+
+export interface PaymentRow {
+  id: string
+  type: PaymentType
+  amount: number
+  payment_date: string
+  payment_method: PaymentMethod
+  period_start: string | null
+  period_end: string | null
+  notes: string | null
+  reason: string | null
+  member: { id: string; full_name: string } | null
+  staff_user: { full_name: string } | null
+}
+
+export interface PaymentListResult {
+  payments: PaymentRow[]
+  total: number
+  net_revenue: number
+}
+
+export interface SubWithMember {
+  id: string
+  start_date: string
+  end_date: string
+  is_current: boolean
+  membership_plan: { name: string | null; price: number | null } | null
+  member: {
+    id: string
+    full_name: string
+    phone: string | null
+    email: string | null
+    status: string
+  } | null
+}
+
+export interface DashboardData {
+  total_active: number
+  revenue_this_month: number
+  expiring_soon: SubWithMember[]
+  overdue: SubWithMember[]
+  pending_signups: Pick<Member, 'id' | 'full_name' | 'phone' | 'email' | 'created_at'>[]
+  pending_count: number
+}

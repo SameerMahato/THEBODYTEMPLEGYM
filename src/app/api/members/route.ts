@@ -1,84 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getStaffContext } from '@/lib/auth'
+import { getMembers } from '@/lib/data/members'
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient()
   const { searchParams } = new URL(request.url)
-  const search = searchParams.get('search') || ''
-  const status = searchParams.get('status') || ''
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const { data: staff } = await supabase
-    .from('staff_user')
-    .select('gym_id')
-    .eq('id', user.id)
-    .single()
-  if (!staff) return NextResponse.json({ error: 'Staff record not found' }, { status: 403 })
-
-  let query = supabase
-    .from('member')
-    .select(`
-      *,
-      member_subscription!left(
-        id, plan_id, start_date, end_date, is_current,
-        membership_plan(id, name, price, duration_days)
-      )
-    `, { count: 'exact' })
-    .eq('gym_id', staff.gym_id)
-    .order('created_at', { ascending: false })
-    .limit(500)
-
-  if (status) query = query.eq('status', status)
-
-  // H-2: Use separate ilike calls instead of .or() to prevent injection via PostgREST syntax
-  if (search) {
-    query = query.or(
-      `full_name.ilike.%${search.replace(/%/g, '\\%').replace(/_/g, '\\_')}%,` +
-      `phone.ilike.%${search.replace(/%/g, '\\%').replace(/_/g, '\\_')}%,` +
-      `email.ilike.%${search.replace(/%/g, '\\%').replace(/_/g, '\\_')}%`
-    )
+  try {
+    const result = await getMembers({
+      search: searchParams.get('search') || undefined,
+      status: searchParams.get('status') || undefined,
+      page: Number(searchParams.get('page')) || 0,
+    })
+    if (!result) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json(result)
+  } catch (e) {
+    return NextResponse.json({ error: (e as Error).message }, { status: 500 })
   }
-
-  const { data, error, count } = await query
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  const members = data?.map(m => {
-    const subs = m.member_subscription ?? []
-    const current = subs.find((s: { is_current: boolean }) => s.is_current) ?? null
-    return { ...m, current_subscription: current, member_subscription: undefined }
-  })
-
-  // H-6: Return total count in header (non-breaking — body stays a flat array)
-  return NextResponse.json(members, {
-    headers: { 'X-Total-Count': String(count ?? 0) },
-  })
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const body = await request.json()
+  const ctx = await getStaffContext()
+  if (!ctx) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const body = await request.json()
 
   if (!body.full_name?.trim()) {
     return NextResponse.json({ error: 'Full name is required' }, { status: 400 })
   }
 
-  const { data: staff } = await supabase
-    .from('staff_user')
-    .select('gym_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!staff) return NextResponse.json({ error: 'Staff record not found' }, { status: 403 })
-
-  const { data, error } = await supabase
+  const { data, error } = await ctx.supabase
     .from('member')
     .insert({
-      gym_id: staff.gym_id,
+      gym_id: ctx.gymId,
       full_name: body.full_name,
       phone: body.phone || null,
       email: body.email || null,
@@ -89,7 +42,7 @@ export async function POST(request: NextRequest) {
       notes: body.notes || null,
       status: 'active',
     })
-    .select()
+    .select('id')
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
