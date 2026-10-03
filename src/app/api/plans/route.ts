@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStaffContext } from '@/lib/auth'
+import { errorResponse, fromPostgrestError } from '@/lib/errors'
 import { getPlans } from '@/lib/data/plans'
 
 export async function GET() {
@@ -35,6 +36,6 @@ export async function POST(request: NextRequest) {
     .select()
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return errorResponse(fromPostgrestError(error, 'POST /api/plans'))
   return NextResponse.json(data, { status: 201 })
 }

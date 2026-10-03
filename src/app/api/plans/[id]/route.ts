@@ -55,6 +55,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     .select()
     .single()
 
-  if (error || !data) return NextResponse.json({ error: error?.message ?? 'Not found' }, { status: 404 })
+  if (error || !data) return NextResponse.json({ error: 'Plan not found.' }, { status: 404 })
   return NextResponse.json(data)
 }

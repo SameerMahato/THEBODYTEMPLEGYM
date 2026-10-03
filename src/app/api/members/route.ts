@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStaffContext } from '@/lib/auth'
+import { errorResponse, fromPostgrestError } from '@/lib/errors'
 import { getMembers } from '@/lib/data/members'
 
 export async function GET(request: NextRequest) {
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
     if (!result) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     return NextResponse.json(result)
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 500 })
+    return errorResponse(e, 'GET /api/members')
   }
 }
 
@@ -45,6 +46,6 @@ export async function POST(request: NextRequest) {
     .select('id')
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return errorResponse(fromPostgrestError(error, 'POST /api/members'))
   return NextResponse.json(data, { status: 201 })
 }

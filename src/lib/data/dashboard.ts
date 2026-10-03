@@ -1,4 +1,5 @@
 import { getStaffContext } from '@/lib/auth'
+import { fromPostgrestError } from '@/lib/errors'
 import { gymToday } from '@/lib/utils'
 import { DashboardData } from '@/types'
 
@@ -12,7 +13,7 @@ export async function getDashboardData(): Promise<DashboardData | null> {
 
   // Only an unauthenticated caller returns null — a failed query must surface
   // as an error, not as a redirect back to the login page.
-  if (error) throw new Error(`Dashboard query failed: ${error.message}`)
+  if (error) throw fromPostgrestError(error, 'getDashboardData')
 
   return data as DashboardData
 }

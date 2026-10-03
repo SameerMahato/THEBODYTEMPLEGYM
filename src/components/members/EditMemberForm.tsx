@@ -88,7 +88,7 @@ export default function EditMemberForm({ id, initial }: { id: string; initial: E
       </Field>
 
       {error && (
-        <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid var(--danger)', borderRadius: '4px', padding: '10px 14px', color: 'var(--danger)', fontSize: '13px' }}>
+        <div style={{ background: 'var(--danger-alt-a10)', border: '1px solid var(--danger)', borderRadius: '4px', padding: '10px 14px', color: 'var(--danger)', fontSize: '13px' }}>
           {error}
         </div>
       )}

@@ -6,7 +6,7 @@ const CONFIG: Record<MemberStatus | 'overdue' | 'expiring', {
   active:   { label: 'Active',    color: '#fff',                   bg: 'var(--accent)',              border: 'transparent' },
   inactive: { label: 'Inactive',  color: 'var(--text-secondary)',  bg: 'transparent',                border: 'var(--border-strong)' },
   pending:  { label: 'Pending',   color: '#000',                   bg: 'var(--warning)',              border: 'transparent' },
-  overdue:  { label: 'Overdue',   color: '#fff',                   bg: 'rgba(255,68,68,0.15)',        border: 'rgba(255,68,68,0.4)' },
+  overdue:  { label: 'Overdue',   color: '#fff',                   bg: 'var(--danger-a15)',        border: 'var(--danger-a40)' },
   expiring: { label: 'Expiring',  color: '#000',                   bg: 'var(--warning)',              border: 'transparent' },
 }
 

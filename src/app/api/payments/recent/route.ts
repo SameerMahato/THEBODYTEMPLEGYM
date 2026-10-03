@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getPayments } from '@/lib/data/payments'
+import { errorResponse } from '@/lib/errors'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
@@ -14,6 +15,6 @@ export async function GET(request: NextRequest) {
     if (!result) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     return NextResponse.json(result)
   } catch (e) {
-    return NextResponse.json({ error: (e as Error).message }, { status: 500 })
+    return errorResponse(e, 'GET /api/payments/recent')
   }
 }

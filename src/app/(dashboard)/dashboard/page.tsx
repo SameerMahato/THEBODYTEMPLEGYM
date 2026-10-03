@@ -1,7 +1,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { formatCurrency, formatDate, daysUntil, GYM_TIME_ZONE } from '@/lib/utils'
+import { formatCurrency, formatDate, formatLongDate, daysUntil } from '@/lib/utils'
 import Card, { CardHeader } from '@/components/ui/Card'
 import BulkReminderButton from '@/components/dashboard/BulkReminderButton'
 import { getDashboardData } from '@/lib/data/dashboard'
@@ -31,10 +31,7 @@ export default async function DashboardPage() {
             color: 'var(--accent)',
             marginBottom: '6px',
           }}>
-            {new Date().toLocaleDateString('en-IN', {
-              weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-              timeZone: GYM_TIME_ZONE,
-            })}
+            {formatLongDate()}
           </p>
           <h1 style={{
             fontFamily: 'var(--font-display)',
@@ -56,7 +53,7 @@ export default async function DashboardPage() {
           textDecoration: 'none',
           fontSize: '13px',
           fontWeight: 600,
-          boxShadow: '0 0 20px rgba(225,29,72,0.25)',
+          boxShadow: '0 0 20px var(--accent-a25)',
           transition: 'box-shadow 0.2s',
         }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -132,8 +129,8 @@ export default async function DashboardPage() {
               <AlertCard
                 title="OVERDUE"
                 color="var(--danger)"
-                borderColor="rgba(255,68,68,0.3)"
-                bgColor="rgba(255,68,68,0.04)"
+                borderColor="var(--danger-a30)"
+                bgColor="var(--danger-a04)"
                 subs={overdue}
                 type="overdue"
               />
@@ -142,8 +139,8 @@ export default async function DashboardPage() {
               <AlertCard
                 title="EXPIRING SOON"
                 color="var(--warning)"
-                borderColor="rgba(245,158,11,0.3)"
-                bgColor="rgba(245,158,11,0.04)"
+                borderColor="var(--warning-a30)"
+                bgColor="var(--warning-a04)"
                 subs={expiringSoon}
                 type="expiring"
               />
@@ -170,15 +167,15 @@ export default async function DashboardPage() {
           <div style={{
             width: '48px',
             height: '48px',
-            background: 'rgba(34,197,94,0.1)',
-            border: '1px solid rgba(34,197,94,0.2)',
+            background: 'var(--success-a10)',
+            border: '1px solid var(--success-a20)',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             marginBottom: '16px',
           }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
@@ -209,11 +206,11 @@ function StatCard({ label, value, color, isString, accent, icon }: {
 }) {
   return (
     <div style={{
-      background: accent ? 'linear-gradient(135deg, rgba(225,29,72,0.12) 0%, rgba(225,29,72,0.04) 100%)' : 'var(--bg-surface)',
-      border: accent ? '1px solid rgba(225,29,72,0.2)' : '1px solid var(--border)',
+      background: accent ? 'linear-gradient(135deg, var(--accent-a12) 0%, var(--accent-a04) 100%)' : 'var(--bg-surface)',
+      border: accent ? '1px solid var(--accent-a20)' : '1px solid var(--border)',
       borderRadius: 'var(--radius-md)',
       padding: '22px 24px',
-      boxShadow: accent ? '0 0 24px rgba(225,29,72,0.08)' : 'var(--shadow-sm)',
+      boxShadow: accent ? '0 0 24px var(--accent-a08)' : 'var(--shadow-sm)',
       position: 'relative',
       overflow: 'hidden',
     }}>
@@ -321,7 +318,7 @@ function AlertCard({ title, color, borderColor, bgColor, subs, type }: {
                     color,
                     fontWeight: 700,
                     fontSize: '12px',
-                    background: type === 'overdue' ? 'rgba(255,68,68,0.1)' : 'rgba(245,158,11,0.1)',
+                    background: type === 'overdue' ? 'var(--danger-a10)' : 'var(--warning-a10)',
                     padding: '2px 8px',
                     borderRadius: '4px',
                   }}>
@@ -344,7 +341,7 @@ function AlertCard({ title, color, borderColor, bgColor, subs, type }: {
 
 function PendingSignupsCard({ members }: { members: DashboardData['pending_signups'] }) {
   return (
-    <Card style={{ borderColor: 'rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.04)' }}>
+    <Card style={{ borderColor: 'var(--warning-a30)', background: 'var(--warning-a04)' }}>
       <CardHeader>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--warning)' }} />
@@ -385,8 +382,8 @@ function PendingSignupsCard({ members }: { members: DashboardData['pending_signu
                 <div style={{
                   width: '32px', height: '32px',
                   borderRadius: '50%',
-                  background: 'rgba(245,158,11,0.1)',
-                  border: '1px solid rgba(245,158,11,0.2)',
+                  background: 'var(--warning-a10)',
+                  border: '1px solid var(--warning-a20)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontFamily: 'var(--font-display)',
                   fontSize: '14px',

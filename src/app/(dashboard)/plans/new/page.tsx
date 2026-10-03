@@ -79,7 +79,7 @@ export default function NewPlanPage() {
                 style={{
                   padding: '6px 14px',
                   border: `1px solid ${form.name === p.name ? 'var(--accent)' : 'var(--border)'}`,
-                  background: form.name === p.name ? 'rgba(225,29,72,0.1)' : 'transparent',
+                  background: form.name === p.name ? 'var(--accent-a10)' : 'transparent',
                   color: form.name === p.name ? 'var(--accent)' : 'var(--text-secondary)',
                   borderRadius: '4px',
                   fontSize: '13px',
@@ -132,7 +132,7 @@ export default function NewPlanPage() {
           </div>
 
           {error && (
-            <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid var(--danger)', borderRadius: '4px', padding: '10px 14px', color: 'var(--danger)', fontSize: '13px' }}>
+            <div style={{ background: 'var(--danger-alt-a10)', border: '1px solid var(--danger)', borderRadius: '4px', padding: '10px 14px', color: 'var(--danger)', fontSize: '13px' }}>
               {error}
             </div>
           )}

@@ -61,7 +61,7 @@ export default function JoinForm({ maxDob }: { maxDob: string }) {
       <div style={{ textAlign: 'center', padding: '8px 0' }}>
         <div style={{
           width: '64px', height: '64px', borderRadius: '50%',
-          background: 'rgba(225,29,72,0.15)', border: '2px solid var(--accent)',
+          background: 'var(--accent-a15)', border: '2px solid var(--accent)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           margin: '0 auto 20px', fontSize: '28px',
         }}>✓</div>
@@ -107,7 +107,7 @@ export default function JoinForm({ maxDob }: { maxDob: string }) {
       </Field>
 
       {error && (
-        <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid var(--danger)', borderRadius: '4px', padding: '10px 14px', color: 'var(--danger)', fontSize: '13px' }}>
+        <div style={{ background: 'var(--danger-alt-a10)', border: '1px solid var(--danger)', borderRadius: '4px', padding: '10px 14px', color: 'var(--danger)', fontSize: '13px' }}>
           {error}
         </div>
       )}

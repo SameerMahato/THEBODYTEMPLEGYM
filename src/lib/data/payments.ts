@@ -1,4 +1,5 @@
 import { getStaffContext } from '@/lib/auth'
+import { fromPostgrestError } from '@/lib/errors'
 import { PAYMENTS_PAGE_SIZE, type PaymentRow, type PaymentListResult } from '@/types'
 
 export interface PaymentListParams {
@@ -44,11 +45,11 @@ export async function getPayments(params: PaymentListParams): Promise<PaymentLis
 
   const [listResult, totalsResult] = await Promise.all([query, totalsQuery])
 
-  if (listResult.error) throw new Error(listResult.error.message)
+  if (listResult.error) throw fromPostgrestError(listResult.error, 'getPayments.list')
 
   // A failed total must not silently render as ₹0 — that reads as "no revenue"
   // rather than "revenue unknown", which is worse than an error on a money figure.
-  if (totalsResult.error) throw new Error(totalsResult.error.message)
+  if (totalsResult.error) throw fromPostgrestError(totalsResult.error, 'getPayments.totals')
 
   return {
     payments: (listResult.data ?? []) as unknown as PaymentRow[],

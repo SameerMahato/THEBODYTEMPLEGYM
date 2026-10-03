@@ -66,9 +66,9 @@ export default function Button({
       onMouseEnter={e => {
         if (disabled || loading) return
         const el = e.currentTarget
-        if (variant === 'primary') el.style.boxShadow = '0 0 20px rgba(225,29,72,0.35)'
+        if (variant === 'primary') el.style.boxShadow = '0 0 20px var(--accent-a35)'
         if (variant === 'secondary') el.style.borderColor = 'var(--border-strong)', el.style.background = 'var(--bg-hover)'
-        if (variant === 'danger') el.style.background = 'rgba(255,68,68,0.08)'
+        if (variant === 'danger') el.style.background = 'var(--danger-a08)'
       }}
       onMouseLeave={e => {
         const el = e.currentTarget

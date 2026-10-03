@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Barlow_Condensed, Inter } from 'next/font/google'
 import './globals.css'
+import { appConfig } from '@/config/app'
 
 const barlowCondensed = Barlow_Condensed({
   subsets: ['latin'],
@@ -17,8 +18,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Body Temple Gym',
-  description: 'Member management system for Body Temple Gym',
+  title: appConfig.brand.name,
+  description: appConfig.brand.description,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

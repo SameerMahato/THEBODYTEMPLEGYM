@@ -1,4 +1,5 @@
 'use client'
+import { appConfig } from '@/config/app'
 
 import { useState } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
@@ -50,7 +51,7 @@ export default function DashboardShell({ pendingCount, children }: {
             <span style={{
               fontFamily: 'var(--font-display)', fontWeight: 800,
               fontSize: '17px', letterSpacing: '0.04em', color: 'var(--text-primary)',
-            }}>BODY TEMPLE</span>
+            }}>{appConfig.brand.displayPrimary}</span>
           </div>
         </div>
 

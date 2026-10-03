@@ -1,14 +1,15 @@
 import QRCode from 'react-qr-code'
 import JoinForm from '@/components/join/JoinForm'
 import { gymToday } from '@/lib/utils'
+import { appConfig } from '@/config/app'
 
 // Public, anonymous, identical for every visitor — serve it from the CDN and
 // regenerate hourly so the date-of-birth bound stays current.
 export const revalidate = 3600
 
 export const metadata = {
-  title: 'Join — Body Temple Gym',
-  description: 'Register as a new member at Body Temple Gym.',
+  title: `Join — ${appConfig.brand.name}`,
+  description: `Register as a new member at ${appConfig.brand.name}.`,
 }
 
 export default function JoinPage() {
@@ -27,11 +28,11 @@ export default function JoinPage() {
           <div style={{
             fontFamily: 'var(--font-display)', fontSize: '38px', fontWeight: 800,
             color: 'var(--text-primary)', letterSpacing: '0.02em', lineHeight: 1,
-          }}>BODY TEMPLE</div>
+          }}>{appConfig.brand.displayPrimary}</div>
           <div style={{
             fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 600,
             letterSpacing: '0.3em', color: 'var(--accent)', marginTop: '4px', marginBottom: '12px',
-          }}>GYM</div>
+          }}>{appConfig.brand.displaySecondary}</div>
           <div style={{
             fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 600,
             color: 'var(--text-secondary)', letterSpacing: '0.05em',

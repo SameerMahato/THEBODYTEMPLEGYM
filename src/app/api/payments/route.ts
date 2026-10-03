@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { errorResponse, fromPostgrestError } from '@/lib/errors'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -64,12 +65,18 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (pe) return NextResponse.json({ error: pe.message }, { status: 500 })
+    if (pe) return errorResponse(fromPostgrestError(pe, 'POST /api/payments adjustment'))
     return NextResponse.json(payment, { status: 201 })
   }
 
   // Regular payment — use RPC if plan_id provided (atomic + bypasses no_payment_update)
   if (body.plan_id) {
+    const reference = typeof body.reference === 'string' ? body.reference.trim().slice(0, 100) : ''
+
+    // p_reference is only sent when there is one to record. PostgREST resolves
+    // the function by the argument names supplied, so omitting it keeps this
+    // call matching the pre-007 nine-argument signature — an unmigrated
+    // database still accepts every payment that carries no reference.
     const { data, error } = await supabase.rpc('create_payment_with_plan', {
       p_gym_id:         staff.gym_id,
       p_member_id:      body.member_id,
@@ -80,8 +87,9 @@ export async function POST(request: NextRequest) {
       p_period_start:   body.period_start || null,
       p_notes:          body.notes || null,
       p_plan_id:        body.plan_id,
+      ...(reference ? { p_reference: reference } : {}),
     })
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) return errorResponse(fromPostgrestError(error, 'POST /api/payments rpc'))
     return NextResponse.json(data, { status: 201 })
   }
 
@@ -111,6 +119,6 @@ export async function POST(request: NextRequest) {
     .select()
     .single()
 
-  if (pe) return NextResponse.json({ error: pe.message }, { status: 500 })
+  if (pe) return errorResponse(fromPostgrestError(pe, 'POST /api/payments insert'))
   return NextResponse.json(payment, { status: 201 })
 }

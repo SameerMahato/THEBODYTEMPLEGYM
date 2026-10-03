@@ -1,4 +1,5 @@
 import { getStaffContext } from '@/lib/auth'
+import { fromPostgrestError } from '@/lib/errors'
 import { MEMBERS_PAGE_SIZE, type MemberRow, type MemberListResult } from '@/types'
 
 export interface MemberListParams {
@@ -30,6 +31,7 @@ export interface MemberDetailPayment {
   period_end: string | null
   notes: string | null
   reason: string | null
+  reference: string | null
   staff_user: { full_name: string } | null
 }
 
@@ -71,7 +73,7 @@ export async function getMemberDetail(id: string): Promise<MemberDetail | null> 
       .from('payment')
       .select(`
         id, type, amount, payment_date, payment_method,
-        period_start, period_end, notes, reason,
+        period_start, period_end, notes, reason, reference,
         staff_user(full_name)
       `)
       .eq('member_id', id)
@@ -137,7 +139,7 @@ export async function getMembers(params: MemberListParams): Promise<MemberListRe
     .from('member')
     .select(
       `id, full_name, phone, email, status, join_date, created_at,
-       member_subscription!left(end_date, membership_plan(name))`,
+       member_subscription!left(end_date, membership_plan(id, name, price, duration_days))`,
       { count: 'exact' }
     )
     .eq('gym_id', ctx.gymId)
@@ -153,11 +155,11 @@ export async function getMembers(params: MemberListParams): Promise<MemberListRe
   }
 
   const { data, error, count } = await query
-  if (error) throw new Error(error.message)
+  if (error) throw fromPostgrestError(error, 'getMembers')
 
   const members: MemberRow[] = (data ?? []).map(row => {
     const { member_subscription, ...rest } = row as unknown as Omit<MemberRow, 'current_subscription'> & {
-      member_subscription: { end_date: string; membership_plan: { name: string } | null }[] | null
+      member_subscription: NonNullable<MemberRow['current_subscription']>[] | null
     }
     return { ...rest, current_subscription: member_subscription?.[0] ?? null }
   })

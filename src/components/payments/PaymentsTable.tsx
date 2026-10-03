@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { formatDate, formatCurrency, PAYMENT_METHOD_LABELS } from '@/lib/utils'
 import { PAYMENTS_PAGE_SIZE, type PaymentRow, type PaymentListResult } from '@/types'
+import FilterButton from '@/components/ui/FilterButton'
 
 // Matches the query the server rendered: no type filter, no dates, page 0.
 const INITIAL_QUERY_KEY = '|||0'
@@ -68,29 +69,13 @@ export default function PaymentsTable({ initial }: { initial: PaymentListResult 
       {/* Filter bar */}
       <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '4px' }}>
-          {TYPE_FILTERS.map(f => {
-            const active = typeFilter === f.value
-            return (
-              <button
-                key={f.value}
-                onClick={() => setFilter(() => setTypeFilter(f.value))}
-                style={{
-                  padding: '8px 14px',
-                  border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
-                  background: active ? 'rgba(225,29,72,0.1)' : 'transparent',
-                  color: active ? 'var(--accent)' : 'var(--text-secondary)',
-                  borderRadius: '4px',
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-body)',
-                  fontWeight: active ? 600 : 400,
-                  transition: 'all 0.15s',
-                }}
-              >
-                {f.label}
-              </button>
-            )
-          })}
+          {TYPE_FILTERS.map(f => (
+            <FilterButton
+              key={f.value}
+              active={typeFilter === f.value}
+              onClick={() => setFilter(() => setTypeFilter(f.value))}
+            >{f.label}</FilterButton>
+          ))}
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <input
@@ -156,7 +141,7 @@ export default function PaymentsTable({ initial }: { initial: PaymentListResult 
               {payments.map(p => {
                 const isAdj = p.type === 'adjustment'
                 return (
-                  <tr key={p.id} style={isAdj ? { background: 'rgba(239,68,68,0.04)' } : {}}>
+                  <tr key={p.id} style={isAdj ? { background: 'var(--danger-alt-a04)' } : {}}>
                     <td style={{ whiteSpace: 'nowrap' }}>{formatDate(p.payment_date)}</td>
                     <td>
                       <Link href={`/members/${p.member?.id}`} style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 500 }}>
@@ -172,7 +157,7 @@ export default function PaymentsTable({ initial }: { initial: PaymentListResult 
                         fontWeight: 700,
                         letterSpacing: '0.06em',
                         textTransform: 'uppercase',
-                        background: isAdj ? 'rgba(239,68,68,0.15)' : 'rgba(225,29,72,0.12)',
+                        background: isAdj ? 'var(--danger-alt-a15)' : 'var(--accent-a12)',
                         color: isAdj ? 'var(--danger)' : 'var(--accent)',
                       }}>
                         {isAdj ? 'Adjustment' : 'Payment'}

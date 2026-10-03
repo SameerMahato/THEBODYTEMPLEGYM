@@ -1,38 +1,8 @@
-/* Fonts are loaded via <link> in layout.tsx for non-render-blocking delivery */
-
-:root {
-  --bg-base:        #080808;
-  --bg-surface:     #0F0F0F;
-  --bg-elevated:    #141414;
-  --bg-hover:       #1A1A1A;
-  --border:         #1E1E1E;
-  --border-strong:  #2A2A2A;
-
-  --accent:         #E11D48;
-  --accent-dim:     #9F1239;
-  --accent-glow:    rgba(225, 29, 72, 0.15);
-  --warning:        #F59E0B;
-  --warning-dim:    #B87A08;
-  --danger:         #FF4444;
-  --danger-dim:     #CC0000;
-  --success:        #22C55E;
-
-  --text-primary:   #F2F2F2;
-  --text-secondary: #6B6B6B;
-  --text-muted:     #3A3A3A;
-  --text-accent:    #E11D48;
-
-  --font-display:   var(--font-barlow, 'Barlow Condensed', sans-serif);
-  --font-body:      var(--font-inter, 'Inter', sans-serif);
-
-  --radius-sm:      6px;
-  --radius-md:      10px;
-  --radius-lg:      16px;
-
-  --shadow-sm:      0 1px 3px rgba(0,0,0,0.5);
-  --shadow-md:      0 4px 16px rgba(0,0,0,0.4);
-  --shadow-lg:      0 8px 32px rgba(0,0,0,0.5);
-}
+/* Design tokens live in src/styles/tokens.css — the single source of truth,
+   mirrored for TypeScript by src/config/theme.ts.
+   Fonts are loaded through next/font/google in app/layout.tsx, which injects
+   --font-barlow and --font-inter onto <html>. */
+@import '../styles/tokens.css';
 
 * {
   box-sizing: border-box;
@@ -162,7 +132,7 @@ tbody tr:last-child td { border-bottom: none; }
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--scrim-sidebar);
   z-index: 40;
   backdrop-filter: blur(2px);
 }

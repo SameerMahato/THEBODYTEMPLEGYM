@@ -3,12 +3,15 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { MEMBERS_PAGE_SIZE, type MemberStatus, type MemberRow } from '@/types'
-import { formatDate, daysUntil } from '@/lib/utils'
+import { MEMBERS_PAGE_SIZE, type MemberRow } from '@/types'
+import { formatDate, membershipStatus } from '@/lib/utils'
 import StatusBadge from '@/components/ui/StatusBadge'
+import FilterButton from '@/components/ui/FilterButton'
+import RenewMembershipModal, { type RenewTarget } from '@/components/members/RenewMembershipModal'
 
-// Matches the query the server rendered: no search, no status filter, page 0.
-const INITIAL_QUERY_KEY = '||0'
+// Matches the query the server rendered: no search, no status filter, page 0,
+// never refreshed.
+const INITIAL_QUERY_KEY = '||0|0'
 
 const STATUS_FILTERS = [
   { label: 'All', value: '' },
@@ -16,17 +19,6 @@ const STATUS_FILTERS = [
   { label: 'Pending', value: 'pending' },
   { label: 'Inactive', value: 'inactive' },
 ]
-
-function displayStatusOf(m: MemberRow): MemberStatus | 'overdue' | 'expiring' {
-  if (m.status === 'pending') return 'pending'
-  if (m.status === 'inactive') return 'inactive'
-  const sub = m.current_subscription
-  if (!sub) return 'active'
-  const days = daysUntil(sub.end_date)
-  if (days < 0) return 'overdue'
-  if (days <= 7) return 'expiring'
-  return 'active'
-}
 
 export default function MembersTable({ initialMembers, initialTotal }: {
   initialMembers: MemberRow[]
@@ -39,9 +31,15 @@ export default function MembersTable({ initialMembers, initialTotal }: {
   const [statusFilter, setStatusFilter] = useState('')
   const [page, setPage] = useState(0)
 
+  const [renewTarget, setRenewTarget] = useState<RenewTarget | null>(null)
+  const [toast, setToast] = useState<string | null>(null)
+  // Bumped after a renewal so the effect below re-runs and the renewed row
+  // comes back with its new status and expiry.
+  const [refreshToken, setRefreshToken] = useState(0)
+
   // The server already rendered the default view, so the effect only fetches
   // once the query actually differs from what the current data represents.
-  const queryKey = `${search}|${statusFilter}|${page}`
+  const queryKey = `${search}|${statusFilter}|${page}|${refreshToken}`
   const [loadedKey, setLoadedKey] = useState(INITIAL_QUERY_KEY)
 
   // Derived, not stored: the table is stale exactly while the requested query
@@ -124,24 +122,11 @@ export default function MembersTable({ initialMembers, initialTotal }: {
         </div>
         <div style={{ display: 'flex', gap: '4px' }}>
           {STATUS_FILTERS.map(f => (
-            <button
+            <FilterButton
               key={f.value}
+              active={statusFilter === f.value}
               onClick={() => changeStatus(f.value)}
-              style={{
-                padding: '8px 14px',
-                border: `1px solid ${statusFilter === f.value ? 'var(--accent)' : 'var(--border)'}`,
-                background: statusFilter === f.value ? 'rgba(225,29,72,0.1)' : 'transparent',
-                color: statusFilter === f.value ? 'var(--accent)' : 'var(--text-secondary)',
-                borderRadius: '4px',
-                fontSize: '13px',
-                cursor: 'pointer',
-                fontFamily: 'var(--font-body)',
-                fontWeight: statusFilter === f.value ? 600 : 400,
-                transition: 'all 0.15s',
-              }}
-            >
-              {f.label}
-            </button>
+            >{f.label}</FilterButton>
           ))}
         </div>
       </div>
@@ -180,11 +165,12 @@ export default function MembersTable({ initialMembers, initialTotal }: {
                 <th>Plan</th>
                 <th>Expiry</th>
                 <th>Joined</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {members.map(m => {
-                const displayStatus = displayStatusOf(m)
+                const displayStatus = membershipStatus(m.status, m.current_subscription?.end_date)
                 const sub = m.current_subscription
                 return (
                   <tr
@@ -218,6 +204,39 @@ export default function MembersTable({ initialMembers, initialTotal }: {
                       ) : '—'}
                     </td>
                     <td style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{formatDate(m.join_date)}</td>
+                    <td>
+                      {/* Renewal is offered only once the membership has actually
+                          lapsed. "Expiring" members are still active and renew
+                          from their own detail page, which continues their
+                          period rather than restarting it today. */}
+                      {displayStatus === 'overdue' && (
+                        <button
+                          onClick={e => {
+                            e.stopPropagation()
+                            setRenewTarget({
+                              id: m.id,
+                              full_name: m.full_name,
+                              previousPlan: sub?.membership_plan ?? null,
+                              previousExpiry: sub?.end_date ?? null,
+                            })
+                          }}
+                          style={{
+                            padding: '5px 12px',
+                            background: 'var(--accent)',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            fontFamily: 'var(--font-body)',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          Renew
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 )
               })}
@@ -243,6 +262,77 @@ export default function MembersTable({ initialMembers, initialTotal }: {
           >Next →</button>
         </div>
       )}
+
+      {renewTarget && (
+        <RenewMembershipModal
+          member={renewTarget}
+          onClose={() => setRenewTarget(null)}
+          onSuccess={message => {
+            setRenewTarget(null)
+            setToast(message)
+            // Re-run the current query so the renewed row reflects its new
+            // status and expiry, and loses its Renew button.
+            setRefreshToken(t => t + 1)
+            // Keeps server-rendered counts elsewhere (sidebar, dashboard) honest.
+            router.refresh()
+          }}
+        />
+      )}
+
+      {toast && <SuccessToast message={toast} onDismiss={() => setToast(null)} />}
+    </div>
+  )
+}
+
+function SuccessToast({ message, onDismiss }: { message: string; onDismiss: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onDismiss, 6000)
+    return () => clearTimeout(t)
+  }, [onDismiss])
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        position: 'fixed',
+        bottom: '24px',
+        right: '24px',
+        maxWidth: 'min(380px, calc(100vw - 48px))',
+        background: 'var(--bg-elevated)',
+        border: '1px solid var(--success-a40)',
+        borderLeft: '3px solid var(--success)',
+        borderRadius: '6px',
+        padding: '14px 16px',
+        boxShadow: 'var(--shadow-lg)',
+        zIndex: 200,
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '12px',
+      }}
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" style={{ flexShrink: 0, marginTop: '1px' }}>
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+      <div style={{ flex: 1 }}>
+        <div style={{
+          fontFamily: 'var(--font-display)', fontSize: '14px', fontWeight: 700,
+          letterSpacing: '0.04em', color: 'var(--text-primary)', marginBottom: '3px',
+        }}>
+          MEMBERSHIP RENEWED SUCCESSFULLY
+        </div>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '12.5px', lineHeight: 1.5 }}>
+          {message}
+        </div>
+      </div>
+      <button
+        onClick={onDismiss}
+        aria-label="Dismiss"
+        style={{
+          background: 'none', border: 'none', color: 'var(--text-muted)',
+          cursor: 'pointer', fontSize: '16px', lineHeight: 1, padding: 0, flexShrink: 0,
+        }}
+      >×</button>
     </div>
   )
 }

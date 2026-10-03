@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getStaffContext } from '@/lib/auth'
+import { errorResponse, fromPostgrestError } from '@/lib/errors'
 
 export async function GET(
   _request: NextRequest,
@@ -25,10 +26,10 @@ export async function GET(
   ])
 
   if (memberResult.error) {
-    return NextResponse.json({ error: memberResult.error.message }, { status: 404 })
+    return errorResponse(fromPostgrestError(memberResult.error, 'GET /api/members/[id]'))
   }
   if (paymentsResult.error) {
-    return NextResponse.json({ error: paymentsResult.error.message }, { status: 500 })
+    return errorResponse(fromPostgrestError(paymentsResult.error, 'GET /api/members/[id] payments'))
   }
 
   return NextResponse.json({ ...memberResult.data, payments: paymentsResult.data })
@@ -58,6 +59,6 @@ export async function PATCH(
     .select()
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return errorResponse(fromPostgrestError(error, 'PATCH /api/members/[id]'))
   return NextResponse.json(data)
 }

@@ -1,4 +1,5 @@
 'use client'
+import { appConfig } from '@/config/app'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -57,7 +58,7 @@ export default function LoginPage() {
             letterSpacing: '0.02em',
             lineHeight: 1,
           }}>
-            BODY TEMPLE
+            {appConfig.brand.displayPrimary}
           </div>
           <div style={{
             fontFamily: 'var(--font-display)',
@@ -123,7 +124,7 @@ export default function LoginPage() {
             <div style={{ minHeight: '44px' }}>
               {error && (
                 <div style={{
-                  background: 'rgba(239,68,68,0.1)',
+                  background: 'var(--danger-alt-a10)',
                   border: '1px solid var(--danger)',
                   borderRadius: '4px',
                   padding: '10px 14px',
@@ -158,7 +159,7 @@ export default function LoginPage() {
         </div>
 
         <p style={{ textAlign: 'center', marginTop: '20px', color: 'var(--text-muted)', fontSize: '12px' }}>
-          Body Temple Gym — Staff Portal
+          {appConfig.brand.name} — {appConfig.brand.portalLabel}
         </p>
       </div>
     </div>

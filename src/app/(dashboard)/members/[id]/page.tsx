@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { formatDate, formatCurrency, daysUntil, addDaysISO, gymToday, PAYMENT_METHOD_LABELS } from '@/lib/utils'
+import { formatDate, formatCurrency, daysUntil, addDaysISO, gymToday, membershipStatus, PAYMENT_METHOD_LABELS } from '@/lib/utils'
 import PageHeader from '@/components/ui/PageHeader'
 import Button from '@/components/ui/Button'
 import StatusBadge from '@/components/ui/StatusBadge'
@@ -21,11 +21,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
 
   const currentSub = member.member_subscription?.find(s => s.is_current)
   const days = currentSub ? daysUntil(currentSub.end_date) : null
-  const displayStatus = member.status === 'pending' ? 'pending'
-    : member.status === 'inactive' ? 'inactive'
-    : days !== null && days < 0 ? 'overdue'
-    : days !== null && days <= 7 ? 'expiring'
-    : 'active'
+  const displayStatus = membershipStatus(member.status, currentSub?.end_date)
 
   const originalPayments = member.payments.filter(p => p.type === 'payment')
 
@@ -187,7 +183,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
                     {member.payments.map(p => {
                       const isAdj = p.type === 'adjustment'
                       return (
-                        <tr key={p.id} style={isAdj ? { background: 'rgba(239,68,68,0.05)' } : {}}>
+                        <tr key={p.id} style={isAdj ? { background: 'var(--danger-alt-a05)' } : {}}>
                           <td style={{ whiteSpace: 'nowrap' }}>
                             {isAdj && <span style={{ color: 'var(--danger)', fontSize: '10px', fontWeight: 700, marginRight: '4px' }}>ADJ</span>}
                             {formatDate(p.payment_date)}
@@ -195,7 +191,14 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
                           <td style={{ fontWeight: 600, color: isAdj ? 'var(--danger)' : 'var(--accent)' }}>
                             {isAdj ? '−' : ''}{formatCurrency(Math.abs(p.amount))}
                           </td>
-                          <td style={{ color: 'var(--text-secondary)' }}>{PAYMENT_METHOD_LABELS[p.payment_method]}</td>
+                          <td style={{ color: 'var(--text-secondary)' }}>
+                            {PAYMENT_METHOD_LABELS[p.payment_method]}
+                            {p.reference && (
+                              <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'monospace', marginTop: '2px' }}>
+                                {p.reference}
+                              </div>
+                            )}
+                          </td>
                           <td style={{ color: 'var(--text-muted)', fontSize: '12px', whiteSpace: 'nowrap' }}>
                             {p.period_start && p.period_end
                               ? `${formatDate(p.period_start)} – ${formatDate(p.period_end)}`

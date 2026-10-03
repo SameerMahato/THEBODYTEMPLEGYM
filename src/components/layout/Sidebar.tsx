@@ -2,15 +2,19 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { appConfig } from '@/config/app'
+import { navigation, type NavIconKey } from '@/config/navigation'
 
-const NAV = [
-  { href: '/dashboard',       label: 'Dashboard',       icon: <DashIcon /> },
-  { href: '/members',         label: 'Members',         icon: <UsersIcon /> },
-  { href: '/plans',           label: 'Plans',           icon: <PlansIcon /> },
-  { href: '/payments',        label: 'Payments',        icon: <PayIcon /> },
-  { href: '/pending-signups', label: 'Pending Signups', icon: <InboxIcon /> },
-  { href: '/join-qr',         label: 'Join QR Code',    icon: <QRIcon /> },
-]
+// Icons stay here so config/navigation.ts remains pure data, importable
+// anywhere without pulling JSX in.
+const ICONS: Record<NavIconKey, React.ReactNode> = {
+  dashboard: <DashIcon />,
+  members:   <UsersIcon />,
+  plans:     <PlansIcon />,
+  payments:  <PayIcon />,
+  pending:   <InboxIcon />,
+  qr:        <QRIcon />,
+}
 
 export default function Sidebar({ pendingCount, onClose }: {
   pendingCount: number
@@ -29,7 +33,7 @@ export default function Sidebar({ pendingCount, onClose }: {
     <aside style={{
       width: '256px',
       minWidth: '256px',
-      background: 'linear-gradient(180deg, #111111 0%, #0A0A0A 100%)',
+      background: 'linear-gradient(180deg, var(--sidebar-grad-from) 0%, var(--sidebar-grad-to) 100%)',
       borderRight: '1px solid var(--border)',
       display: 'flex',
       flexDirection: 'column',
@@ -70,7 +74,7 @@ export default function Sidebar({ pendingCount, onClose }: {
               letterSpacing: '0.02em',
               color: 'var(--text-primary)',
               lineHeight: 1,
-            }}>BODY TEMPLE</div>
+            }}>{appConfig.brand.displayPrimary}</div>
             <div style={{
               fontFamily: 'var(--font-body)',
               fontSize: '10px',
@@ -79,7 +83,7 @@ export default function Sidebar({ pendingCount, onClose }: {
               color: 'var(--text-secondary)',
               textTransform: 'uppercase',
               marginTop: '3px',
-            }}>GYM ADMIN</div>
+            }}>{appConfig.brand.adminLabel}</div>
           </div>
         </div>
         <div style={{
@@ -100,7 +104,7 @@ export default function Sidebar({ pendingCount, onClose }: {
           textTransform: 'uppercase',
           padding: '0 12px 8px',
         }}>Navigation</div>
-        {NAV.map(item => {
+        {navigation.map(item => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
           return (
             <Link
@@ -120,7 +124,7 @@ export default function Sidebar({ pendingCount, onClose }: {
                 fontWeight: isActive ? 600 : 400,
                 background: isActive ? 'var(--accent-glow)' : 'transparent',
                 borderRadius: 'var(--radius-sm)',
-                border: isActive ? '1px solid rgba(225,29,72,0.2)' : '1px solid transparent',
+                border: isActive ? '1px solid var(--accent-a20)' : '1px solid transparent',
                 position: 'relative',
               }}
             >
@@ -130,10 +134,10 @@ export default function Sidebar({ pendingCount, onClose }: {
                 alignItems: 'center',
                 flexShrink: 0,
               }}>
-                {item.icon}
+                {ICONS[item.icon]}
               </span>
               <span style={{ flex: 1 }}>{item.label}</span>
-              {item.href === '/pending-signups' && pendingCount > 0 && (
+              {item.showsPendingBadge && pendingCount > 0 && (
                 <span style={{
                   background: 'var(--accent)',
                   color: '#fff',

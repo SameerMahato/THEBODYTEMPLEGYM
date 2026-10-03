@@ -14,7 +14,13 @@ export async function POST(request: NextRequest) {
   const { error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 401 })
+    // Logged in full; the browser only learns that the pair was wrong, never
+    // whether the address exists.
+    console.warn(`[LOGIN_FAILED] ${error.message}`)
+    return NextResponse.json(
+      { error: 'Incorrect email or password.', code: 'UNAUTHENTICATED' },
+      { status: 401 }
+    )
   }
 
   return NextResponse.json({ ok: true })

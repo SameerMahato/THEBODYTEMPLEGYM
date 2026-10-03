@@ -1,4 +1,5 @@
 'use client'
+import { appConfig } from '@/config/app'
 
 import { useEffect, useRef, useState } from 'react'
 import { daysUntil } from '@/lib/utils'
@@ -25,9 +26,9 @@ function formatPhone(raw: string): string {
 
 function buildMessage(name: string, plan: string | undefined, days: number, type: 'overdue' | 'expiring'): string {
   if (type === 'overdue') {
-    return `Hi ${name},\n\nYour *Body Temple Gym* membership has expired. We'd love to have you back! 🏋️\n\nPlease visit the front desk to renew and continue your fitness journey.\n\n— Body Temple Gym`
+    return `Hi ${name},\n\nYour *${appConfig.brand.name}* membership has expired. We'd love to have you back! 🏋️\n\nPlease visit the front desk to renew and continue your fitness journey.\n\n— ${appConfig.brand.name}`
   }
-  return `Hi ${name}! 👋\n\nYour *${plan ?? 'membership'}* at *Body Temple Gym* ${days === 0 ? 'expires *today*' : `expires in *${days} day${days !== 1 ? 's' : ''}*`}.\n\nRenew now to keep your streak going! 💪\n\n— Body Temple Gym`
+  return `Hi ${name}! 👋\n\nYour *${plan ?? 'membership'}* at *${appConfig.brand.name}* ${days === 0 ? 'expires *today*' : `expires in *${days} day${days !== 1 ? 's' : ''}*`}.\n\nRenew now to keep your streak going! 💪\n\n— ${appConfig.brand.name}`
 }
 
 function openWhatsApp(phone: string, message: string) {
@@ -77,7 +78,7 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)',
+      position: 'fixed', inset: 0, background: 'var(--scrim-modal)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       zIndex: 100, padding: '24px',
     }}>
@@ -105,10 +106,10 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
               width: '32px', height: '32px', borderRadius: '6px',
-              background: 'rgba(37,211,102,0.15)',
+              background: 'var(--whatsapp-a15)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="#25D366">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--whatsapp)">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
               </svg>
             </div>
@@ -140,7 +141,7 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
               <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.08em', color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
                 Progress
               </span>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: sentCount === totalWithPhone && totalWithPhone > 0 ? '#25D366' : 'var(--text-secondary)' }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: sentCount === totalWithPhone && totalWithPhone > 0 ? 'var(--whatsapp)' : 'var(--text-secondary)' }}>
                 {sentCount} / {totalWithPhone} sent
               </span>
             </div>
@@ -148,7 +149,7 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
               <div style={{
                 height: '100%',
                 width: `${totalWithPhone > 0 ? (sentCount / totalWithPhone) * 100 : 0}%`,
-                background: '#25D366',
+                background: 'var(--whatsapp)',
                 borderRadius: '2px',
                 transition: 'width 0.3s',
               }} />
@@ -159,9 +160,9 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
             disabled={totalWithPhone === 0 || sentCount === totalWithPhone || sending}
             style={{
               padding: '8px 16px',
-              background: sentCount === totalWithPhone ? 'rgba(37,211,102,0.1)' : '#25D366',
-              color: sentCount === totalWithPhone ? '#25D366' : '#fff',
-              border: sentCount === totalWithPhone ? '1px solid #25D366' : 'none',
+              background: sentCount === totalWithPhone ? 'var(--whatsapp-a10)' : 'var(--whatsapp)',
+              color: sentCount === totalWithPhone ? 'var(--whatsapp)' : '#fff',
+              border: sentCount === totalWithPhone ? '1px solid var(--whatsapp)' : 'none',
               borderRadius: '6px',
               fontSize: '12px',
               fontWeight: 700,
@@ -209,15 +210,15 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
                   padding: '14px 24px',
                   borderBottom: '1px solid var(--border)',
                   opacity: hasPhone ? 1 : 0.45,
-                  background: isSent ? 'rgba(37,211,102,0.04)' : 'transparent',
+                  background: isSent ? 'var(--whatsapp-a04)' : 'transparent',
                   transition: 'background 0.2s',
                 }}>
                   {/* Avatar */}
                   <div style={{
                     width: '36px', height: '36px',
                     borderRadius: '50%',
-                    background: isOverdue ? 'rgba(255,68,68,0.1)' : 'rgba(245,158,11,0.1)',
-                    border: `1px solid ${isOverdue ? 'rgba(255,68,68,0.25)' : 'rgba(245,158,11,0.25)'}`,
+                    background: isOverdue ? 'var(--danger-a10)' : 'var(--warning-a10)',
+                    border: `1px solid ${isOverdue ? 'var(--danger-a25)' : 'var(--warning-a25)'}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontFamily: 'var(--font-display)',
                     fontSize: '15px',
@@ -260,7 +261,7 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '5px',
-                      color: '#25D366',
+                      color: 'var(--whatsapp)',
                       fontSize: '12px',
                       fontWeight: 700,
                       flexShrink: 0,
@@ -277,7 +278,7 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
                       style={{
                         width: '80px',
                         padding: '7px 0',
-                        background: hasPhone ? '#25D366' : 'var(--bg-elevated)',
+                        background: hasPhone ? 'var(--whatsapp)' : 'var(--bg-elevated)',
                         color: hasPhone ? '#fff' : 'var(--text-muted)',
                         border: 'none',
                         borderRadius: '6px',

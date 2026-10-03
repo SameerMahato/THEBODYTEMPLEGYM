@@ -1,4 +1,5 @@
 import { getStaffContext } from '@/lib/auth'
+import { fromPostgrestError } from '@/lib/errors'
 import { MembershipPlan } from '@/types'
 
 export async function getPlans(): Promise<MembershipPlan[] | null> {
@@ -12,6 +13,6 @@ export async function getPlans(): Promise<MembershipPlan[] | null> {
     .eq('is_active', true)
     .order('price', { ascending: true })
 
-  if (error) throw new Error(error.message)
+  if (error) throw fromPostgrestError(error, 'getPlans')
   return data ?? []
 }

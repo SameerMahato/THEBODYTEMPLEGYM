@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { errorResponse, fromPostgrestError } from '@/lib/errors'
 
 // H-1: In-memory rate limiter with periodic pruning.
 // NOTE: This is per-instance; in serverless each cold start has a fresh map.
@@ -94,6 +95,6 @@ export async function POST(request: NextRequest) {
       status: 'pending',
     })
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return errorResponse(fromPostgrestError(error, 'POST /api/auth signup'))
   return NextResponse.json({ ok: true }, { status: 201 })
 }

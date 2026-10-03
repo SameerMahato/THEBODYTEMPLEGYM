@@ -1,0 +1,164 @@
+/* ============================================================
+   Design tokens — the single source of truth for the visual system.
+   Imported by app/globals.css; mirrored for TypeScript in config/theme.ts,
+   which only ever references these variables so the two cannot drift.
+
+   Existing token names are preserved verbatim. Renaming --accent to
+   --color-accent would touch every component for no functional gain.
+
+   Values under "Extracted" are byte-for-byte what the application already
+   rendered. Values under "Added" fill gaps the audit found — chiefly the
+   91 hand-mixed rgba() literals scattered across 22 component files.
+   ============================================================ */
+
+:root {
+  /* ── Surfaces ──────────────────────────── Extracted */
+  --bg-base:        #080808;
+  --bg-surface:     #0F0F0F;
+  --bg-elevated:    #141414;
+  --bg-hover:       #1A1A1A;
+  --border:         #1E1E1E;
+  --border-strong:  #2A2A2A;
+
+  /* ── Brand & status ────────────────────── Extracted */
+  --accent:         #E11D48;
+  --accent-dim:     #9F1239;
+  --accent-glow:    rgba(225, 29, 72, 0.15);
+  --warning:        #F59E0B;
+  --warning-dim:    #B87A08;
+  --danger:         #FF4444;
+  --danger-dim:     #CC0000;
+  --success:        #22C55E;
+
+  /* ── Text ──────────────────────────────── Extracted */
+  --text-primary:   #F2F2F2;
+  --text-secondary: #6B6B6B;
+  --text-muted:     #3A3A3A;
+  --text-accent:    #E11D48;
+
+  /* ── Type ──────────────────────────────── Extracted
+     next/font injects --font-barlow and --font-inter on <html>. */
+  --font-display:   var(--font-barlow, 'Barlow Condensed', sans-serif);
+  --font-body:      var(--font-inter, 'Inter', sans-serif);
+
+  /* ── Radius ────────────────────────────── Extracted */
+  --radius-sm:      6px;
+  --radius-md:      10px;
+  --radius-lg:      16px;
+
+  /* ── Shadow ────────────────────────────── Extracted */
+  --shadow-sm:      0 1px 3px rgba(0,0,0,0.5);
+  --shadow-md:      0 4px 16px rgba(0,0,0,0.4);
+  --shadow-lg:      0 8px 32px rgba(0,0,0,0.5);
+
+  /* ════════════════════════════════════════ Added below ══════ */
+
+  /* ── Brand RGB channels ──
+     Every tint below is derived from these, so changing the brand colour
+     changes its tints too. Previously each tint was typed out by hand. */
+  --accent-rgb:     225, 29, 72;    /* #E11D48 */
+  --warning-rgb:    245, 158, 11;   /* #F59E0B */
+  --danger-rgb:     255, 68, 68;    /* #FF4444 */
+  --success-rgb:    34, 197, 94;    /* #22C55E */
+
+  /* The adjustment/refund UI uses a deliberately different red from
+     --danger. Kept as its own token rather than merged, because merging
+     would change what is currently on screen. */
+  --danger-alt:     #EF4444;
+  --danger-alt-rgb: 239, 68, 68;
+
+  /* WhatsApp brand green — appeared as a bare #25D366 in 16 places. */
+  --whatsapp:       #25D366;
+  --whatsapp-rgb:   37, 211, 102;
+
+  /* ── Tint ramps ──
+     Named by opacity: -a10 is the colour at 10% alpha. The set covers
+     exactly the alphas the components already use. */
+  --accent-a04:     rgba(var(--accent-rgb), 0.04);
+  --accent-a06:     rgba(var(--accent-rgb), 0.06);
+  --accent-a07:     rgba(var(--accent-rgb), 0.07);
+  --accent-a08:     rgba(var(--accent-rgb), 0.08);
+  --accent-a10:     rgba(var(--accent-rgb), 0.10);
+  --accent-a12:     rgba(var(--accent-rgb), 0.12);
+  --accent-a15:     rgba(var(--accent-rgb), 0.15);
+  --accent-a20:     rgba(var(--accent-rgb), 0.20);
+  --accent-a25:     rgba(var(--accent-rgb), 0.25);
+  --accent-a35:     rgba(var(--accent-rgb), 0.35);
+
+  --danger-a04:     rgba(var(--danger-rgb), 0.04);
+  --danger-a08:     rgba(var(--danger-rgb), 0.08);
+  --danger-a10:     rgba(var(--danger-rgb), 0.10);
+  --danger-a15:     rgba(var(--danger-rgb), 0.15);
+  --danger-a25:     rgba(var(--danger-rgb), 0.25);
+  --danger-a30:     rgba(var(--danger-rgb), 0.30);
+  --danger-a40:     rgba(var(--danger-rgb), 0.40);
+
+  --danger-alt-a04: rgba(var(--danger-alt-rgb), 0.04);
+  --danger-alt-a05: rgba(var(--danger-alt-rgb), 0.05);
+  --danger-alt-a07: rgba(var(--danger-alt-rgb), 0.07);
+  --danger-alt-a10: rgba(var(--danger-alt-rgb), 0.10);
+  --danger-alt-a15: rgba(var(--danger-alt-rgb), 0.15);
+
+  --warning-a04:    rgba(var(--warning-rgb), 0.04);
+  --warning-a10:    rgba(var(--warning-rgb), 0.10);
+  --warning-a15:    rgba(var(--warning-rgb), 0.15);
+  --warning-a20:    rgba(var(--warning-rgb), 0.20);
+  --warning-a25:    rgba(var(--warning-rgb), 0.25);
+  --warning-a30:    rgba(var(--warning-rgb), 0.30);
+
+  --success-a10:    rgba(var(--success-rgb), 0.10);
+  --success-a20:    rgba(var(--success-rgb), 0.20);
+  --success-a40:    rgba(var(--success-rgb), 0.40);
+
+  --whatsapp-a04:   rgba(var(--whatsapp-rgb), 0.04);
+  --whatsapp-a08:   rgba(var(--whatsapp-rgb), 0.08);
+  --whatsapp-a10:   rgba(var(--whatsapp-rgb), 0.10);
+  --whatsapp-a15:   rgba(var(--whatsapp-rgb), 0.15);
+  --whatsapp-a30:   rgba(var(--whatsapp-rgb), 0.30);
+
+  /* ── Scrims ──
+     One modal scrim. The components previously used 0.7, 0.75 and 0.8 for
+     the same purpose, which read as three slightly different dialogs. */
+  --scrim-modal:    rgba(0, 0, 0, 0.7);   /* modal overlays */
+  --scrim-sidebar:  rgba(0, 0, 0, 0.6);   /* mobile sidebar backdrop */
+
+  /* ── Misc surfaces ── */
+  /* Barely-there top sheen on cards. */
+  --surface-sheen:     rgba(255, 255, 255, 0.01);
+  /* The sidebar's own vertical gradient, slightly lighter than --bg-surface. */
+  --sidebar-grad-from: #111111;
+  --sidebar-grad-to:   #0A0A0A;
+
+  /* ── Spacing — 4px base ── */
+  --space-1:        4px;
+  --space-2:        8px;
+  --space-3:        12px;
+  --space-4:        16px;
+  --space-5:        20px;
+  --space-6:        24px;
+  --space-8:        32px;
+  --space-10:       40px;
+  --space-14:       56px;
+
+  /* ── Layout ── */
+  --sidebar-width:      256px;
+  --page-max-width:     1400px;
+  --detail-max-width:   1200px;
+  --content-pad-y:      20px;
+  --content-pad-x:      32px;
+  --content-pad-mobile: 16px;
+
+  /* ── Components ── */
+  --modal-width-sm:   520px;   /* record payment */
+  --modal-width-md:   560px;   /* renewal */
+  --card-pad:         24px;
+  --badge-radius:     20px;
+
+  /* ── Motion ──
+     Durations already in use, named. Kept short: performance is a priority
+     and these drive colour/opacity transitions, not layout. */
+  --motion-fast:    150ms;
+  --motion-normal:  250ms;
+  --motion-slow:    400ms;
+  --ease-standard:  cubic-bezier(0.4, 0, 0.2, 1);
+}

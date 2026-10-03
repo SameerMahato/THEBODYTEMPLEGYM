@@ -1,9 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { MembershipPlan } from '@/types'
-import { calculateEndDate, formatCurrency } from '@/lib/utils'
+import { calculateMembershipExpiry, formatDate, formatCurrency } from '@/lib/utils'
 import Button from '@/components/ui/Button'
+import Modal from '@/components/ui/Modal'
+import { appConfig } from '@/config/app'
 
 interface Props {
   memberId: string
@@ -30,7 +32,6 @@ function Field({ label, required, htmlFor, children }: { label: string; required
 export default function RecordPaymentModal({ memberId, memberName, plans, isAdjustment, relatedPaymentId, renewalStartDate, onClose, onSuccess }: Props) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const modalRef = useRef<HTMLDivElement>(null)
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -47,30 +48,6 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
     reason: '',
     related_payment_id: relatedPaymentId ?? '',
   })
-
-  useEffect(() => {
-    const el = modalRef.current
-    if (!el) return
-    const focusable = el.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )
-    const first = focusable[0]
-    const last = focusable[focusable.length - 1]
-
-    function trap(e: KeyboardEvent) {
-      if (e.key === 'Escape') { onClose(); return }
-      if (e.key !== 'Tab') return
-      if (e.shiftKey) {
-        if (document.activeElement === first) { e.preventDefault(); last?.focus() }
-      } else {
-        if (document.activeElement === last) { e.preventDefault(); first?.focus() }
-      }
-    }
-
-    first?.focus()
-    document.addEventListener('keydown', trap)
-    return () => document.removeEventListener('keydown', trap)
-  }, [onClose])
 
   function set(key: string, value: string) {
     setForm(f => {
@@ -93,7 +70,7 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
 
   const selectedPlan = plans.find(p => p.id === form.plan_id)
   const endDate = selectedPlan && form.period_start
-    ? calculateEndDate(form.period_start, selectedPlan.duration_days)
+    ? calculateMembershipExpiry(form.period_start, selectedPlan.duration_days)
     : ''
 
   async function handleSubmit(e: React.FormEvent) {
@@ -135,49 +112,19 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        zIndex: 100, padding: '24px',
-      }}
-      onClick={onClose}
+    <Modal
+      title={isAdjustment ? 'RECORD ADJUSTMENT' : isRenewal ? 'RENEW PLAN' : 'RECORD PAYMENT'}
+      subtitle={memberName}
+      width="sm"
+      onClose={onClose}
+      closeDisabled={loading}
     >
-      <div
-        ref={modalRef}
-        style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
-          borderRadius: '6px',
-          width: '100%',
-          maxWidth: '520px',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '20px 24px', borderBottom: '1px solid var(--border)',
-        }}>
-          <div>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--text-primary)' }}>
-              {isAdjustment ? 'RECORD ADJUSTMENT' : isRenewal ? 'RENEW PLAN' : 'RECORD PAYMENT'}
-            </div>
-            <div style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '2px' }}>{memberName}</div>
-          </div>
-          <button onClick={onClose} aria-label="Close" style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '20px', lineHeight: 1 }}>
-            ×
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           {/* Renewal banner */}
           {isRenewal && (
             <div style={{
-              background: 'rgba(225,29,72,0.07)',
-              border: '1px solid rgba(225,29,72,0.25)',
+              background: 'var(--accent-a07)',
+              border: '1px solid var(--accent-a25)',
               borderRadius: '4px',
               padding: '10px 14px',
               fontSize: '12px',
@@ -201,7 +148,7 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
                       flex: 1,
                       padding: '8px',
                       border: `1px solid ${form.type === t ? (t === 'adjustment' ? 'var(--danger)' : 'var(--accent)') : 'var(--border)'}`,
-                      background: form.type === t ? (t === 'adjustment' ? 'rgba(239,68,68,0.1)' : 'rgba(225,29,72,0.1)') : 'transparent',
+                      background: form.type === t ? (t === 'adjustment' ? 'var(--danger-alt-a10)' : 'var(--accent-a10)') : 'transparent',
                       color: form.type === t ? (t === 'adjustment' ? 'var(--danger)' : 'var(--accent)') : 'var(--text-secondary)',
                       borderRadius: '4px',
                       cursor: 'pointer',
@@ -220,7 +167,7 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
 
           {form.type === 'adjustment' && (
             <div style={{
-              background: 'rgba(239,68,68,0.07)',
+              background: 'var(--danger-alt-a07)',
               border: '1px solid var(--danger-dim)',
               borderRadius: '4px',
               padding: '12px 14px',
@@ -251,11 +198,9 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
 
           <Field label="Payment Method *" required htmlFor="payment-method">
             <select id="payment-method" value={form.payment_method} onChange={e => set('payment_method', e.target.value)}>
-              <option value="cash">Cash</option>
-              <option value="upi">UPI</option>
-              <option value="bank_transfer">Bank Transfer</option>
-              <option value="card">Card</option>
-              <option value="other">Other</option>
+              {appConfig.paymentMethods.map(m => (
+                <option key={m.value} value={m.value}>{m.label}</option>
+              ))}
             </select>
           </Field>
 
@@ -278,7 +223,7 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
                     <input id="period-start" value={form.period_start} onChange={e => set('period_start', e.target.value)} type="date" />
                   </Field>
                   <Field label="Period End (auto)" htmlFor="period-end">
-                    <input id="period-end" value={endDate ? new Date(endDate + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''} readOnly style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-strong)' }} />
+                    <input id="period-end" value={endDate ? formatDate(endDate) : ''} readOnly style={{ color: 'var(--text-secondary)', borderColor: 'var(--border-strong)' }} />
                   </Field>
                 </div>
               )}
@@ -322,7 +267,7 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
           </Field>
 
           {error && (
-            <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid var(--danger)', borderRadius: '4px', padding: '10px 14px', color: 'var(--danger)', fontSize: '13px' }}>
+            <div style={{ background: 'var(--danger-alt-a10)', border: '1px solid var(--danger)', borderRadius: '4px', padding: '10px 14px', color: 'var(--danger)', fontSize: '13px' }}>
               {error}
             </div>
           )}
@@ -337,8 +282,7 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
             </Button>
             <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
           </div>
-        </form>
-      </div>
-    </div>
+      </form>
+    </Modal>
   )
 }

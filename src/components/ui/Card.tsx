@@ -29,7 +29,7 @@ export function CardHeader({ children, style }: CardProps) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      background: 'rgba(255,255,255,0.01)',
+      background: 'var(--surface-sheen)',
       ...style,
     }}>
       {children}

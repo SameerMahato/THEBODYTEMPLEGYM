@@ -2,6 +2,7 @@ import { headers } from 'next/headers'
 import QRCode from 'react-qr-code'
 import PageHeader from '@/components/ui/PageHeader'
 import QRActions from '@/components/join/QRActions'
+import { appConfig } from '@/config/app'
 
 export default async function JoinQRPage() {
   let base = process.env.NEXT_PUBLIC_APP_URL
@@ -45,17 +46,17 @@ export default async function JoinQRPage() {
             alignItems: 'center',
             gap: '20px',
             border: '1px solid var(--border)',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
+            boxShadow: 'var(--shadow-md)',
           }}>
             <div style={{
               fontFamily: 'var(--font-display)',
               fontSize: '18px',
               fontWeight: 800,
               letterSpacing: '0.08em',
-              color: '#080808',
+              color: 'var(--bg-base)',
               textAlign: 'center',
             }}>
-              BODY TEMPLE GYM
+              {`${appConfig.brand.displayPrimary} ${appConfig.brand.displaySecondary}`}
             </div>
             <div style={{
               fontFamily: 'var(--font-body)',
@@ -63,7 +64,7 @@ export default async function JoinQRPage() {
               fontWeight: 600,
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
-              color: '#E11D48',
+              color: 'var(--accent)',
               marginTop: '-12px',
               textAlign: 'center',
             }}>

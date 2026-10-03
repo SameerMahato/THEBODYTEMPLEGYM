@@ -1,3 +1,5 @@
+import { appConfig } from '@/config/app'
+
 export type MemberStatus = 'pending' | 'active' | 'inactive'
 export type PaymentMethod = 'cash' | 'upi' | 'bank_transfer' | 'card' | 'other'
 export type PaymentType = 'payment' | 'adjustment'
@@ -97,8 +99,10 @@ export interface MemberWithSubscription extends Member {
 // Kept here (and not in src/lib/data/*) so client components can import them
 // without dragging next/headers into the browser bundle.
 
-export const MEMBERS_PAGE_SIZE = 50
-export const PAYMENTS_PAGE_SIZE = 100
+// Page sizes are configuration, not types — they live in config/app.ts and are
+// re-exported here so the existing import sites keep working.
+export const MEMBERS_PAGE_SIZE = appConfig.pagination.members
+export const PAYMENTS_PAGE_SIZE = appConfig.pagination.payments
 
 export interface MemberRow {
   id: string
@@ -110,7 +114,9 @@ export interface MemberRow {
   created_at: string
   current_subscription: {
     end_date: string
-    membership_plan: { name: string } | null
+    // id/price/duration_days let the renewal modal offer "Renew Previous Plan"
+    // without a further round trip per row.
+    membership_plan: { id: string; name: string; price: number; duration_days: number } | null
   } | null
 }
 

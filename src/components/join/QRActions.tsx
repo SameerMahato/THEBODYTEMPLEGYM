@@ -44,8 +44,8 @@ export default function QRActions({ joinUrl }: { joinUrl: string }) {
         style={{
           padding: '12px 24px',
           background: 'transparent',
-          color: copied ? '#25D366' : 'var(--text-secondary)',
-          border: `1px solid ${copied ? '#25D366' : 'var(--border-strong)'}`,
+          color: copied ? 'var(--whatsapp)' : 'var(--text-secondary)',
+          border: `1px solid ${copied ? 'var(--whatsapp)' : 'var(--border-strong)'}`,
           borderRadius: '6px',
           fontSize: '13px',
           fontWeight: 600,
