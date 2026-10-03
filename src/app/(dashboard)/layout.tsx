@@ -3,13 +3,13 @@ import { getStaffContext } from '@/lib/auth'
 import DashboardShell from '@/components/layout/DashboardShell'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  // pendingCount arrives with the context — it used to be a second round
+  // trip here, which every dashboard page paid before rendering anything.
   const ctx = await getStaffContext()
   if (!ctx) redirect('/login')
 
-  const { data: pendingCount } = await ctx.supabase.rpc('get_pending_count')
-
   return (
-    <DashboardShell pendingCount={pendingCount ?? 0}>
+    <DashboardShell pendingCount={ctx.pendingCount}>
       {children}
     </DashboardShell>
   )
