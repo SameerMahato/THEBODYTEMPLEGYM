@@ -15,8 +15,15 @@ export type StaffContext = {
 export const getStaffContext = cache(async (): Promise<StaffContext | null> => {
   const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  // getClaims() verifies the token's ES256 signature locally against the
+  // project's JWKS, which auth-js caches globally per environment for 10
+  // minutes. getUser() instead posts the token to the Auth server on every
+  // request — a full round trip to the database region, measured at ~330ms.
+  // If the project ever moves to a symmetric signing key, or WebCrypto is
+  // unavailable, getClaims() falls back to getUser() on its own.
+  const { data: claimsData } = await supabase.auth.getClaims()
+  const userId = claimsData?.claims?.sub
+  if (!userId) return null
 
   // One call for gym_id and the pending count. These were two separate
   // round trips — a staff_user select here and a get_pending_count() in the
@@ -29,7 +36,7 @@ export const getStaffContext = cache(async (): Promise<StaffContext | null> => {
 
   return {
     supabase,
-    userId: user.id,
+    userId,
     gymId: bootstrap.gym_id,
     pendingCount: Number(bootstrap.pending_count ?? 0),
   }

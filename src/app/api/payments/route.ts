@@ -1,21 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getStaffContext } from '@/lib/auth'
 import { errorResponse, fromPostgrestError } from '@/lib/errors'
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const body = await request.json()
-
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-
-  const { data: staff } = await supabase
-    .from('staff_user')
-    .select('gym_id')
-    .eq('id', user.id)
-    .single()
-
-  if (!staff) return NextResponse.json({ error: 'Staff record not found' }, { status: 403 })
+  // Two round trips (getUser + staff_user) collapse into getStaffContext,
+  // whose token check is now local.
+  const [ctx, body] = await Promise.all([getStaffContext(), request.json()])
+  if (!ctx) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { supabase, userId, gymId } = ctx
 
   const amount = Number(body.amount)
   if (!Number.isFinite(amount)) {
@@ -43,7 +35,7 @@ export async function POST(request: NextRequest) {
       .select('id, gym_id')
       .eq('id', body.related_payment_id)
       .single()
-    if (!original || original.gym_id !== staff.gym_id) {
+    if (!original || original.gym_id !== gymId) {
       return NextResponse.json({ error: 'Original payment not found' }, { status: 404 })
     }
 
@@ -51,9 +43,9 @@ export async function POST(request: NextRequest) {
     const { data: payment, error: pe } = await supabase
       .from('payment')
       .insert({
-        gym_id: staff.gym_id,
+        gym_id: gymId,
         member_id: body.member_id,
-        recorded_by: user.id,
+        recorded_by: userId,
         type: 'adjustment',
         amount,
         payment_date: body.payment_date,
@@ -78,9 +70,9 @@ export async function POST(request: NextRequest) {
     // call matching the pre-007 nine-argument signature — an unmigrated
     // database still accepts every payment that carries no reference.
     const { data, error } = await supabase.rpc('create_payment_with_plan', {
-      p_gym_id:         staff.gym_id,
+      p_gym_id:         gymId,
       p_member_id:      body.member_id,
-      p_recorded_by:    user.id,
+      p_recorded_by:    userId,
       p_amount:         amount,
       p_payment_date:   body.payment_date,
       p_payment_method: body.payment_method,
@@ -98,16 +90,16 @@ export async function POST(request: NextRequest) {
     .from('member')
     .select('id')
     .eq('id', body.member_id)
-    .eq('gym_id', staff.gym_id)
+    .eq('gym_id', gymId)
     .single()
   if (!memberCheck) return NextResponse.json({ error: 'Member not found' }, { status: 404 })
 
   const { data: payment, error: pe } = await supabase
     .from('payment')
     .insert({
-      gym_id: staff.gym_id,
+      gym_id: gymId,
       member_id: body.member_id,
-      recorded_by: user.id,
+      recorded_by: userId,
       type: 'payment',
       amount,
       payment_date: body.payment_date,
