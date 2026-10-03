@@ -3,7 +3,7 @@ import Link from 'next/link'
 export default function NotFound() {
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: '100dvh',
       background: 'var(--bg-base)',
       display: 'flex',
       alignItems: 'center',
@@ -13,7 +13,7 @@ export default function NotFound() {
       padding: '24px',
       textAlign: 'center',
     }}>
-      <div style={{ fontFamily: 'var(--font-display)', fontSize: '80px', fontWeight: 800, color: 'var(--accent)', lineHeight: 1 }}>
+      <div style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-hero)', fontWeight: 800, color: 'var(--accent)', lineHeight: 1 }}>
         404
       </div>
       <div style={{ fontFamily: 'var(--font-display)', fontSize: '24px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '0.05em' }}>

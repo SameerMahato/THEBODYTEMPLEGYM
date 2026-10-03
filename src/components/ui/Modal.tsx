@@ -57,13 +57,16 @@ export default function Modal({
     return () => document.removeEventListener('keydown', onKey)
   }, [onClose, closeDisabled])
 
+  // Stops the page behind the dialog scrolling under a thumb drag, which on
+  // iOS otherwise moves the page while the sheet stays put.
+  useEffect(() => {
+    document.body.classList.add('scroll-locked')
+    return () => document.body.classList.remove('scroll-locked')
+  }, [])
+
   return (
     <div
-      style={{
-        position: 'fixed', inset: 0, background: 'var(--scrim-modal)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        zIndex: 100, padding: 'var(--space-6)',
-      }}
+      className="modal-overlay"
       onClick={() => { if (!closeDisabled) onClose() }}
     >
       <div
@@ -71,30 +74,17 @@ export default function Modal({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-sm)',
-          width: '100%',
-          maxWidth: width === 'md' ? 'var(--modal-width-md)' : 'var(--modal-width-sm)',
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
+        className={`modal-panel${width === 'md' ? ' modal-panel--md' : ''}`}
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
-        <div style={{
-          display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
-          padding: '20px 24px', borderBottom: '1px solid var(--border)', flexShrink: 0,
-        }}>
+        <div className="modal-header">
           <div>
             <div style={{
               fontFamily: 'var(--font-display)', fontSize: '18px', fontWeight: 700,
               letterSpacing: '0.05em', color: 'var(--text-primary)',
             }}>{title}</div>
             {subtitle && (
-              <div style={{ color: 'var(--text-secondary)', fontSize: '12px', marginTop: '2px' }}>
+              <div style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-small)', marginTop: '2px' }}>
                 {subtitle}
               </div>
             )}
@@ -107,24 +97,17 @@ export default function Modal({
               background: 'none', border: 'none', color: 'var(--text-muted)',
               cursor: closeDisabled ? 'not-allowed' : 'pointer',
               fontSize: '20px', lineHeight: 1,
+              /* Comfortable tap target without moving the glyph. */
+              padding: '4px 8px', margin: '-4px -8px',
             }}
           >×</button>
         </div>
 
         {banner && <div style={{ flexShrink: 0 }}>{banner}</div>}
 
-        <div style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
-          {children}
-        </div>
+        <div className="modal-body">{children}</div>
 
-        {footer && (
-          <div style={{
-            display: 'flex', gap: '12px', padding: '16px 24px',
-            borderTop: '1px solid var(--border)', flexShrink: 0,
-          }}>
-            {footer}
-          </div>
-        )}
+        {footer && <div className="modal-footer">{footer}</div>}
       </div>
     </div>
   )

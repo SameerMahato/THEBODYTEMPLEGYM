@@ -31,8 +31,8 @@ export default function Sidebar({ pendingCount, onClose }: {
 
   return (
     <aside style={{
-      width: '256px',
-      minWidth: '256px',
+      width: 'var(--sidebar-width)',
+      minWidth: 'var(--sidebar-width)',
       background: 'linear-gradient(180deg, var(--sidebar-grad-from) 0%, var(--sidebar-grad-to) 100%)',
       borderRight: '1px solid var(--border)',
       display: 'flex',

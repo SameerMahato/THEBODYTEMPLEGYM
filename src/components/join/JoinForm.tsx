@@ -66,7 +66,7 @@ export default function JoinForm({ maxDob }: { maxDob: string }) {
           margin: '0 auto 20px', fontSize: '28px',
         }}>✓</div>
         <h2 style={{
-          fontFamily: 'var(--font-display)', fontSize: '32px', fontWeight: 800,
+          fontFamily: 'var(--font-display)', fontSize: 'var(--text-section-title)', fontWeight: 800,
           color: 'var(--text-primary)', marginBottom: '12px', letterSpacing: '0.02em',
         }}>
           YOU&apos;RE REGISTERED

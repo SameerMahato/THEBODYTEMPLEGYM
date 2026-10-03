@@ -147,10 +147,14 @@
   --content-pad-y:      20px;
   --content-pad-x:      32px;
   --content-pad-mobile: 16px;
+  /* .dash-page runs slightly wider than the other containers by design. */
+  --dash-pad-y:         32px;
+  --dash-pad-x:         36px;
 
   /* ── Components ── */
   --modal-width-sm:   520px;   /* record payment */
   --modal-width-md:   560px;   /* renewal */
+  --modal-width-lg:   600px;   /* bulk reminders */
   --card-pad:         24px;
   --badge-radius:     20px;
 
@@ -161,4 +165,67 @@
   --motion-normal:  250ms;
   --motion-slow:    400ms;
   --ease-standard:  cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ── Fluid typography ──
+     clamp(min, preferred, max): the max is the existing desktop size, so
+     desktop is unchanged, and the floor keeps mobile readable rather than
+     shrinking text to make it fit. The vw term does the interpolating. */
+  --text-hero:          clamp(48px, 16vw, 80px);  /* 404 */
+  --text-brand:         clamp(28px,  9vw, 42px);  /* login / join lockup */
+  --text-page-title:    clamp(28px,  7vw, 44px);  /* dashboard OVERVIEW */
+  --text-section-title: clamp(22px,  5.5vw, 32px);/* PageHeader */
+  --text-stat:          clamp(34px, 10vw, 54px);  /* big stat numbers */
+  --text-stat-sm:       clamp(22px,  6vw, 30px);  /* currency in a stat card */
+  --text-price:         clamp(26px,  7vw, 36px);  /* plan price */
+
+  /* Body scale — fixed, because shrinking these hurts legibility.
+     16px on inputs specifically: anything smaller makes iOS Safari zoom the
+     viewport on focus, which breaks native date pickers. */
+  --text-body:   14px;
+  --text-small:  12px;
+  --text-micro:  11px;
+  --text-input:  16px;
+}
+
+/* ============================================================
+   Responsive overrides.
+   Breakpoints are defined canonically in src/config/breakpoints.ts —
+   change them there and mirror here. CSS cannot read a custom property
+   inside a media query condition, so the values appear twice by necessity.
+   ============================================================ */
+
+/* Phones — below `tablet` (768px) */
+@media (max-width: 767px) {
+  :root {
+    --content-pad-x: 16px;
+    --content-pad-y: 16px;
+    --dash-pad-x: 16px;
+    --dash-pad-y: 16px;
+    /* Dialogs sit nearly edge to edge; 24px a side costs 15% of a 320px screen. */
+    --modal-gutter: 12px;
+    --card-pad: 18px;
+  }
+}
+
+/* Tablet — 768px to 1023px.
+   Previously this range inherited the full desktop layout, so a 768px screen
+   gave 256px of its width to the sidebar. The sidebar stays visible (hiding
+   navigation costs more than the width it reclaims) but narrows, and the
+   content column tightens with it. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  :root {
+    --sidebar-width: 208px;
+    --content-pad-x: 24px;
+    --content-pad-y: 20px;
+    --dash-pad-x: 24px;
+    --dash-pad-y: 24px;
+    --modal-gutter: 24px;
+  }
+}
+
+/* Desktop and up */
+@media (min-width: 1024px) {
+  :root {
+    --modal-gutter: 24px;
+  }
 }

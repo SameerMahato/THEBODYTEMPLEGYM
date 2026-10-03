@@ -35,7 +35,7 @@ export default async function DashboardPage() {
           </p>
           <h1 style={{
             fontFamily: 'var(--font-display)',
-            fontSize: '44px',
+            fontSize: 'var(--text-page-title)',
             fontWeight: 800,
             color: 'var(--text-primary)',
             letterSpacing: '0.02em',
@@ -64,7 +64,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '32px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))', gap: '12px', marginBottom: '32px' }}>
         <StatCard
           label="Active Members"
           value={stats.total_active}
@@ -124,7 +124,7 @@ export default async function DashboardPage() {
             )}
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', gap: '12px' }}>
             {overdue.length > 0 && (
               <AlertCard
                 title="OVERDUE"
@@ -239,7 +239,7 @@ function StatCard({ label, value, color, isString, accent, icon }: {
       </div>
       <div style={{
         fontFamily: 'var(--font-display)',
-        fontSize: isString ? '30px' : '54px',
+        fontSize: isString ? 'var(--text-stat-sm)' : 'var(--text-stat)',
         fontWeight: 800,
         color,
         lineHeight: 1,

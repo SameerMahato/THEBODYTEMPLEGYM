@@ -77,22 +77,8 @@ export default function BulkWhatsAppModal({ overdue, expiring, onClose }: Props)
   }
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, background: 'var(--scrim-modal)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      zIndex: 100, padding: '24px',
-    }}>
-      <div style={{
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border)',
-        borderRadius: '10px',
-        width: '100%',
-        maxWidth: '600px',
-        maxHeight: '88vh',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-      }}>
+    <div className="modal-overlay">
+      <div className="modal-panel modal-panel--lg" style={{ overflow: 'hidden' }}>
 
         {/* Header */}
         <div style={{

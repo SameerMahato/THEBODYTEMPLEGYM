@@ -18,7 +18,7 @@ export default function JoinPage() {
 
   return (
     <div style={{
-      minHeight: '100vh', background: 'var(--bg-base)',
+      minHeight: '100dvh', background: 'var(--bg-base)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '24px',
     }}>
@@ -26,7 +26,7 @@ export default function JoinPage() {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{
-            fontFamily: 'var(--font-display)', fontSize: '38px', fontWeight: 800,
+            fontFamily: 'var(--font-display)', fontSize: 'var(--text-brand)', fontWeight: 800,
             color: 'var(--text-primary)', letterSpacing: '0.02em', lineHeight: 1,
           }}>{appConfig.brand.displayPrimary}</div>
           <div style={{

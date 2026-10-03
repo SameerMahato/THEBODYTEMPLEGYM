@@ -12,7 +12,7 @@ export default function PageHeader({ title, subtitle, action }: PageHeaderProps)
       <div>
         <h1 style={{
           fontFamily: 'var(--font-display)',
-          fontSize: '32px',
+          fontSize: 'var(--text-section-title)',
           fontWeight: 700,
           color: 'var(--text-primary)',
           letterSpacing: '0.02em',
@@ -26,7 +26,7 @@ export default function PageHeader({ title, subtitle, action }: PageHeaderProps)
           }}>{subtitle}</p>
         )}
       </div>
-      {action && <div style={{ flexShrink: 0 }}>{action}</div>}
+      {action && <div className="page-header-action">{action}</div>}
     </div>
   )
 }

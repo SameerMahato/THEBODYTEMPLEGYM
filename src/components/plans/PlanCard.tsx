@@ -48,7 +48,7 @@ export default function PlanCard({ plan }: { plan: MembershipPlan }) {
         </div>
         <div style={{
           fontFamily: 'var(--font-display)',
-          fontSize: '36px',
+          fontSize: 'var(--text-price)',
           fontWeight: 800,
           color: 'var(--accent)',
           lineHeight: 1.1,

@@ -90,25 +90,11 @@ export default function WhatsAppModal({ memberName, phone, planName, daysRemaini
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed', inset: 0, background: 'var(--scrim-modal)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        zIndex: 100, padding: '24px',
-      }}
-      onClick={onClose}
-    >
+    <div className="modal-overlay" onClick={onClose}>
       <div
         ref={modalRef}
-        style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
-          borderRadius: '10px',
-          width: '100%',
-          maxWidth: '520px',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-        }}
+        className="modal-panel"
+        style={{ overflowY: 'auto' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}

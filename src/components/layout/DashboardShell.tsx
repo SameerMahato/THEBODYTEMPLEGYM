@@ -1,7 +1,7 @@
 'use client'
 import { appConfig } from '@/config/app'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
 
 export default function DashboardShell({ pendingCount, children }: {
@@ -10,8 +10,25 @@ export default function DashboardShell({ pendingCount, children }: {
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
+  // Escape closes the drawer, and the page behind it stops scrolling while it
+  // is open — a drag over the scrim otherwise moves the page under it.
+  useEffect(() => {
+    if (!sidebarOpen) return
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setSidebarOpen(false)
+    }
+    document.addEventListener('keydown', onKey)
+    document.body.classList.add('scroll-locked')
+
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.body.classList.remove('scroll-locked')
+    }
+  }, [sidebarOpen])
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div style={{ display: 'flex', minHeight: '100dvh' }}>
       <div
         className={`sidebar-overlay${sidebarOpen ? ' open' : ''}`}
         onClick={() => setSidebarOpen(false)}

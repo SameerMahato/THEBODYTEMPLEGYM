@@ -98,8 +98,8 @@ export default function MembersTable({ initialMembers, initialTotal }: {
   return (
     <div style={{ padding: '20px 32px' }}>
       {/* Search + Filter bar */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-        <div style={{ position: 'relative', flex: '1', maxWidth: '360px' }}>
+      <div className="filter-bar">
+        <div className="filter-search">
           <input
             type="text"
             placeholder="Search by name, phone, or email..."
@@ -120,7 +120,7 @@ export default function MembersTable({ initialMembers, initialTotal }: {
             >×</button>
           )}
         </div>
-        <div style={{ display: 'flex', gap: '4px' }}>
+        <div className="filter-pills">
           {STATUS_FILTERS.map(f => (
             <FilterButton
               key={f.value}
@@ -142,13 +142,9 @@ export default function MembersTable({ initialMembers, initialTotal }: {
       </div>
 
       {/* Table */}
-      <div style={{
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border)',
-        borderRadius: '6px',
-        overflowX: 'auto',
+      <div className="table-wrap table-cards" style={{
         opacity: loading ? 0.55 : 1,
-        transition: 'opacity 0.15s',
+        transition: 'opacity var(--motion-fast)',
       }}>
         {members.length === 0 && !loading ? (
           <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
@@ -182,16 +178,16 @@ export default function MembersTable({ initialMembers, initialTotal }: {
                     aria-label={`View ${m.full_name}`}
                     style={{ cursor: 'pointer' }}
                   >
-                    <td>
+                    <td data-card-primary>
                       <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{m.full_name}</div>
                       {m.email && <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>{m.email}</div>}
                     </td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{m.phone ?? '—'}</td>
-                    <td><StatusBadge status={displayStatus} /></td>
-                    <td style={{ color: 'var(--text-secondary)' }}>
+                    <td data-label="Phone" style={{ color: 'var(--text-secondary)' }}>{m.phone ?? '—'}</td>
+                    <td data-label="Status"><StatusBadge status={displayStatus} /></td>
+                    <td data-label="Plan" style={{ color: 'var(--text-secondary)' }}>
                       {sub?.membership_plan?.name ?? '—'}
                     </td>
-                    <td>
+                    <td data-label="Expiry">
                       {sub ? (
                         <span style={{
                           color: displayStatus === 'overdue' ? 'var(--danger)'
@@ -203,8 +199,8 @@ export default function MembersTable({ initialMembers, initialTotal }: {
                         </span>
                       ) : '—'}
                     </td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{formatDate(m.join_date)}</td>
-                    <td>
+                    <td data-label="Joined" style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{formatDate(m.join_date)}</td>
+                    <td data-card-action>
                       {/* Renewal is offered only once the membership has actually
                           lapsed. "Expiring" members are still active and renew
                           from their own detail page, which continues their

@@ -167,7 +167,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
                 <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>No payment records yet.</p>
               </CardBody>
             ) : (
-              <div style={{ overflowX: 'auto' }}>
+              <div className="table-wrap table-cards" style={{ border: 'none', background: 'transparent' }}>
                 <table>
                   <thead>
                     <tr>
@@ -184,14 +184,14 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
                       const isAdj = p.type === 'adjustment'
                       return (
                         <tr key={p.id} style={isAdj ? { background: 'var(--danger-alt-a05)' } : {}}>
-                          <td style={{ whiteSpace: 'nowrap' }}>
+                          <td data-card-primary style={{ whiteSpace: 'nowrap' }}>
                             {isAdj && <span style={{ color: 'var(--danger)', fontSize: '10px', fontWeight: 700, marginRight: '4px' }}>ADJ</span>}
                             {formatDate(p.payment_date)}
                           </td>
-                          <td style={{ fontWeight: 600, color: isAdj ? 'var(--danger)' : 'var(--accent)' }}>
+                          <td data-label="Amount" style={{ fontWeight: 600, color: isAdj ? 'var(--danger)' : 'var(--accent)' }}>
                             {isAdj ? '−' : ''}{formatCurrency(Math.abs(p.amount))}
                           </td>
-                          <td style={{ color: 'var(--text-secondary)' }}>
+                          <td data-label="Method" style={{ color: 'var(--text-secondary)' }}>
                             {PAYMENT_METHOD_LABELS[p.payment_method]}
                             {p.reference && (
                               <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontFamily: 'monospace', marginTop: '2px' }}>
@@ -199,15 +199,15 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
                               </div>
                             )}
                           </td>
-                          <td style={{ color: 'var(--text-muted)', fontSize: '12px', whiteSpace: 'nowrap' }}>
+                          <td data-label="Period" style={{ color: 'var(--text-muted)', fontSize: '12px', whiteSpace: 'nowrap' }}>
                             {p.period_start && p.period_end
                               ? `${formatDate(p.period_start)} – ${formatDate(p.period_end)}`
                               : '—'}
                           </td>
-                          <td style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
+                          <td data-label="Recorded by" style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
                             {p.staff_user?.full_name ?? '—'}
                           </td>
-                          <td style={{ color: 'var(--text-secondary)', fontSize: '12px', maxWidth: '180px' }}>
+                          <td data-label="Notes" style={{ color: 'var(--text-secondary)', fontSize: '12px', maxWidth: '180px' }}>
                             {isAdj ? (
                               <span style={{ color: 'var(--danger)' }}>Adj: {p.reason}</span>
                             ) : p.notes ?? '—'}
@@ -224,7 +224,7 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
           {member.member_subscription.length > 1 && (
             <Card style={{ marginTop: '16px' }}>
               <CardHeader><span style={sectionTitle}>PLAN HISTORY</span></CardHeader>
-              <div style={{ overflowX: 'auto' }}>
+              <div className="table-wrap table-cards" style={{ border: 'none', background: 'transparent' }}>
                 <table>
                   <thead>
                     <tr>
@@ -239,10 +239,10 @@ export default async function MemberDetailPage({ params }: { params: Promise<{ i
                       .sort((a, b) => b.start_date.localeCompare(a.start_date))
                       .map(s => (
                         <tr key={s.id}>
-                          <td style={{ fontWeight: 500 }}>{s.membership_plan?.name ?? '—'}</td>
-                          <td style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{formatDate(s.start_date)}</td>
-                          <td style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{formatDate(s.end_date)}</td>
-                          <td>
+                          <td data-card-primary style={{ fontWeight: 500 }}>{s.membership_plan?.name ?? '—'}</td>
+                          <td data-label="Start" style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{formatDate(s.start_date)}</td>
+                          <td data-label="End" style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{formatDate(s.end_date)}</td>
+                          <td data-label="Status">
                             {s.is_current
                               ? <span style={{ color: 'var(--accent)', fontSize: '11px', fontWeight: 700 }}>CURRENT</span>
                               : <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>Past</span>}

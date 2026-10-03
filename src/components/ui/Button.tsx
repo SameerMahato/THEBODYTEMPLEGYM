@@ -42,11 +42,13 @@ export default function Button({
   children,
   style,
   disabled,
+  className,
   ...props
 }: ButtonProps) {
   return (
     <button
       disabled={disabled || loading}
+      className={className ? `btn ${className}` : 'btn'}
       style={{
         ...styles[variant],
         padding: size === 'sm' ? '6px 14px' : '10px 20px',

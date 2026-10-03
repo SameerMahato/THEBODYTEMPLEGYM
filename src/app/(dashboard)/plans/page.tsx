@@ -29,7 +29,7 @@ export default async function PlansPage() {
             <Link href="/plans/new"><Button>Create First Plan</Button></Link>
           </Card>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))', gap: '16px' }}>
             {plans.map(plan => <PlanCard key={plan.id} plan={plan} />)}
           </div>
         )}

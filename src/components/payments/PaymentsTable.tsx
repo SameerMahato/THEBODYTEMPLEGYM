@@ -67,8 +67,8 @@ export default function PaymentsTable({ initial }: { initial: PaymentListResult 
   return (
     <div style={{ padding: '20px 32px' }}>
       {/* Filter bar */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={{ display: 'flex', gap: '4px' }}>
+      <div className="filter-bar" style={{ alignItems: 'center', marginBottom: '16px' }}>
+        <div className="filter-pills">
           {TYPE_FILTERS.map(f => (
             <FilterButton
               key={f.value}
@@ -77,7 +77,7 @@ export default function PaymentsTable({ initial }: { initial: PaymentListResult 
             >{f.label}</FilterButton>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
           <input
             type="date"
             value={dateFrom}
@@ -109,13 +109,9 @@ export default function PaymentsTable({ initial }: { initial: PaymentListResult 
         <SummaryCard label="Records" value={String(data.total)} color="var(--text-primary)" />
       </div>
 
-      <div style={{
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border)',
-        borderRadius: '6px',
-        overflowX: 'auto',
+      <div className="table-wrap table-cards" style={{
         opacity: loading ? 0.55 : 1,
-        transition: 'opacity 0.15s',
+        transition: 'opacity var(--motion-fast)',
       }}>
         {payments.length === 0 && !loading ? (
           <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
@@ -142,13 +138,13 @@ export default function PaymentsTable({ initial }: { initial: PaymentListResult 
                 const isAdj = p.type === 'adjustment'
                 return (
                   <tr key={p.id} style={isAdj ? { background: 'var(--danger-alt-a04)' } : {}}>
-                    <td style={{ whiteSpace: 'nowrap' }}>{formatDate(p.payment_date)}</td>
-                    <td>
+                    <td data-label="Date" style={{ whiteSpace: 'nowrap' }}>{formatDate(p.payment_date)}</td>
+                    <td data-card-primary>
                       <Link href={`/members/${p.member?.id}`} style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 500 }}>
                         {p.member?.full_name ?? '—'}
                       </Link>
                     </td>
-                    <td>
+                    <td data-label="Type">
                       <span style={{
                         display: 'inline-block',
                         padding: '2px 7px',
@@ -163,15 +159,15 @@ export default function PaymentsTable({ initial }: { initial: PaymentListResult 
                         {isAdj ? 'Adjustment' : 'Payment'}
                       </span>
                     </td>
-                    <td style={{ fontWeight: 600, color: isAdj ? 'var(--danger)' : 'var(--text-primary)' }}>
+                    <td data-label="Amount" style={{ fontWeight: 600, color: isAdj ? 'var(--danger)' : 'var(--text-primary)' }}>
                       {isAdj && p.amount > 0 ? '+' : ''}{formatCurrency(p.amount)}
                     </td>
-                    <td style={{ color: 'var(--text-secondary)' }}>{PAYMENT_METHOD_LABELS[p.payment_method]}</td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: '12px', whiteSpace: 'nowrap' }}>
+                    <td data-label="Method" style={{ color: 'var(--text-secondary)' }}>{PAYMENT_METHOD_LABELS[p.payment_method]}</td>
+                    <td data-label="Period" style={{ color: 'var(--text-muted)', fontSize: '12px', whiteSpace: 'nowrap' }}>
                       {p.period_start && p.period_end ? `${formatDate(p.period_start)} – ${formatDate(p.period_end)}` : '—'}
                     </td>
-                    <td style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{p.staff_user?.full_name ?? '—'}</td>
-                    <td style={{ fontSize: '12px', maxWidth: '200px' }}>
+                    <td data-label="Recorded by" style={{ color: 'var(--text-muted)', fontSize: '12px' }}>{p.staff_user?.full_name ?? '—'}</td>
+                    <td data-label="Notes" style={{ fontSize: '12px', maxWidth: '200px' }}>
                       {isAdj
                         ? <span style={{ color: 'var(--danger)' }}>{p.reason}</span>
                         : <span style={{ color: 'var(--text-secondary)' }}>{p.notes ?? '—'}</span>

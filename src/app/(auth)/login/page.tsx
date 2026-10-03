@@ -40,7 +40,7 @@ export default function LoginPage() {
 
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: '100dvh',
       background: 'var(--bg-base)',
       display: 'flex',
       alignItems: 'center',
@@ -52,7 +52,7 @@ export default function LoginPage() {
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <div style={{
             fontFamily: 'var(--font-display)',
-            fontSize: '42px',
+            fontSize: 'var(--text-brand)',
             fontWeight: 800,
             color: 'var(--text-primary)',
             letterSpacing: '0.02em',
