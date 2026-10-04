@@ -231,7 +231,14 @@ tbody tr:last-child td { border-bottom: none; }
   /* Primary page action spans the width — it is the main thing to tap. */
   .page-header-action { width: 100%; }
   .page-header-action > a { display: block; width: 100%; }
-  .page-header-action button { width: 100%; justify-content: center; }
+  /* Direct children only: a dialog rendered by one of these buttons is a DOM
+     descendant of this container, and a descendant selector stretched its
+     close button to the full width too. */
+  .page-header-action > button,
+  .page-header-action > a > button {
+    width: 100%;
+    justify-content: center;
+  }
 
   /* Comfortable, consistent tap targets. */
   .btn { min-height: 44px; }

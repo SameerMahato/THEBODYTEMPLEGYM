@@ -180,7 +180,7 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
           )}
 
           <div className="form-grid-2">
-            <Field label={form.type === 'adjustment' ? 'Adjustment Amount (₹) *' : 'Amount (₹) *'} required htmlFor="payment-amount">
+            <Field label={form.type === 'adjustment' ? 'Adjustment Amount (₹)' : 'Amount (₹)'} required htmlFor="payment-amount">
               <input
                 id="payment-amount"
                 value={form.amount}
@@ -191,12 +191,12 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
                 required
               />
             </Field>
-            <Field label="Date *" required htmlFor="payment-date">
+            <Field label="Date" required htmlFor="payment-date">
               <input id="payment-date" value={form.payment_date} onChange={e => set('payment_date', e.target.value)} type="date" required />
             </Field>
           </div>
 
-          <Field label="Payment Method *" required htmlFor="payment-method">
+          <Field label="Payment Method" required htmlFor="payment-method">
             <select id="payment-method" value={form.payment_method} onChange={e => set('payment_method', e.target.value)}>
               {appConfig.paymentMethods.map(m => (
                 <option key={m.value} value={m.value}>{m.label}</option>
@@ -232,7 +232,7 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
 
           {form.type === 'adjustment' && (
             <>
-              <Field label="Reference to Original Payment ID *" required htmlFor="related-payment">
+              <Field label="Reference to Original Payment ID" required htmlFor="related-payment">
                 <input
                   id="related-payment"
                   value={form.related_payment_id}
@@ -241,7 +241,7 @@ export default function RecordPaymentModal({ memberId, memberName, plans, isAdju
                   required
                 />
               </Field>
-              <Field label="Reason for Adjustment *" required htmlFor="adjustment-reason">
+              <Field label="Reason for Adjustment" required htmlFor="adjustment-reason">
                 <textarea
                   id="adjustment-reason"
                   value={form.reason}
