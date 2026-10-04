@@ -8,6 +8,9 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant
   size?: 'sm' | 'md'
   loading?: boolean
+  /** Shown beside the spinner while `loading`. Most buttons here submit a
+   *  form, hence the default — set it for actions that are not saves. */
+  loadingLabel?: string
 }
 
 const styles: Record<Variant, React.CSSProperties> = {
@@ -39,6 +42,7 @@ export default function Button({
   variant = 'primary',
   size = 'md',
   loading,
+  loadingLabel = 'Saving…',
   children,
   style,
   disabled,
@@ -86,7 +90,7 @@ export default function Button({
             style={{ animation: 'spin 0.8s linear infinite' }}>
             <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
           </svg>
-          Saving…
+          {loadingLabel}
         </>
       ) : children}
     </button>

@@ -71,7 +71,12 @@ export default async function JoinQRPage() {
               SCAN TO JOIN
             </div>
 
-            <QRCode value={joinUrl} size={220} />
+            {/* Wrapped so QRActions can serialise this exact SVG into the
+                shareable poster, rather than shipping the QR library to the
+                browser to generate a second one. */}
+            <div id="join-qr">
+              <QRCode value={joinUrl} size={220} />
+            </div>
 
             <div style={{
               fontFamily: 'monospace',
