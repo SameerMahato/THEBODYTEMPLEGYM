@@ -450,9 +450,11 @@ body.scroll-locked {
    navigation on a 768px screen costs more than the width it reclaims — but
    narrows, and the content column tightens to match. Breakpoints are defined
    in src/config/breakpoints.ts. */
-@media (min-width: 768px) and (max-width: 1023px) {
-  /* The member detail two-column split needs more room than a tablet has
-     once the sidebar is accounted for. */
+@media (max-width: 1023px) {
+  /* The member detail two-column split needs more room than a tablet or a
+     phone has. It stacks below 1024px — on a phone the second column was
+     otherwise clipped inside .main-content's overflow-x instead of wrapping,
+     which hid the right-hand edge of the payment history. */
   .member-detail-grid {
     grid-template-columns: 1fr;
   }
