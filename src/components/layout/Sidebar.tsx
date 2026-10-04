@@ -55,7 +55,7 @@ export default function Sidebar({ pendingCount, onClose }: {
           <div style={{
             width: '32px',
             height: '32px',
-            background: 'var(--accent)',
+            background: 'var(--accent-surface)',
             borderRadius: '6px',
             display: 'flex',
             alignItems: 'center',
@@ -139,7 +139,7 @@ export default function Sidebar({ pendingCount, onClose }: {
               <span style={{ flex: 1 }}>{item.label}</span>
               {item.showsPendingBadge && pendingCount > 0 && (
                 <span style={{
-                  background: 'var(--accent)',
+                  background: 'var(--accent-surface)',
                   color: '#fff',
                   fontSize: '10px',
                   fontWeight: 700,

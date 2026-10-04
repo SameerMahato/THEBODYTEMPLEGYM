@@ -140,7 +140,7 @@ export default function LoginPage() {
               type="submit"
               disabled={loading}
               style={{
-                background: loading ? 'var(--accent-dim)' : 'var(--accent)',
+                background: loading ? 'var(--accent-dim)' : 'var(--accent-surface)',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '4px',

@@ -47,7 +47,7 @@ export default async function DashboardPage() {
           alignItems: 'center',
           gap: '8px',
           padding: '10px 20px',
-          background: 'var(--accent)',
+          background: 'var(--accent-surface)',
           color: '#fff',
           borderRadius: 'var(--radius-sm)',
           textDecoration: 'none',
@@ -100,7 +100,7 @@ export default async function DashboardPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{
                 width: '3px', height: '20px',
-                background: 'var(--accent)',
+                background: 'var(--accent-surface)',
                 borderRadius: '2px',
               }} />
               <span style={{
@@ -111,7 +111,7 @@ export default async function DashboardPage() {
                 letterSpacing: '0.06em',
               }}>ACTION REQUIRED</span>
               <span style={{
-                background: 'var(--accent)',
+                background: 'var(--accent-surface)',
                 color: '#fff',
                 fontSize: '11px',
                 fontWeight: 700,

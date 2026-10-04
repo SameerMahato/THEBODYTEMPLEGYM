@@ -17,7 +17,7 @@ export default function QRActions({ joinUrl }: { joinUrl: string }) {
         onClick={() => window.print()}
         style={{
           padding: '12px 24px',
-          background: 'var(--accent)',
+          background: 'var(--accent-surface)',
           color: '#fff',
           border: 'none',
           borderRadius: '6px',

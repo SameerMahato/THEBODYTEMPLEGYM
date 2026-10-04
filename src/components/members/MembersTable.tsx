@@ -218,7 +218,7 @@ export default function MembersTable({ initialMembers, initialTotal }: {
                           }}
                           style={{
                             padding: '5px 12px',
-                            background: 'var(--accent)',
+                            background: 'var(--accent-surface)',
                             color: '#fff',
                             border: 'none',
                             borderRadius: '4px',

@@ -116,7 +116,7 @@ export default function JoinForm({ maxDob }: { maxDob: string }) {
         type="submit"
         disabled={loading}
         style={{
-          background: loading ? 'var(--accent-dim)' : 'var(--accent)',
+          background: loading ? 'var(--accent-dim)' : 'var(--accent-surface)',
           color: '#fff', border: 'none', borderRadius: '4px',
           padding: '13px', fontSize: '15px', fontWeight: 700,
           fontFamily: 'var(--font-display)', letterSpacing: '0.08em',

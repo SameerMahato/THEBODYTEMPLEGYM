@@ -58,7 +58,7 @@ export default function DashboardShell({ pendingCount, children }: {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{
               width: '24px', height: '24px',
-              background: 'var(--accent)', borderRadius: '4px',
+              background: 'var(--accent-surface)', borderRadius: '4px',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
             }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="white">

@@ -25,7 +25,7 @@ export default function NotFound() {
       <Link href="/dashboard" style={{
         marginTop: '8px',
         padding: '10px 24px',
-        background: 'var(--accent)',
+        background: 'var(--accent-surface)',
         color: '#fff',
         borderRadius: 'var(--radius-sm)',
         textDecoration: 'none',

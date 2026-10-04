@@ -22,6 +22,15 @@
 
   /* ── Brand & status ────────────────────── Extracted */
   --accent:         #FF2A00;
+  /* The same brand colour, darkened just enough to carry white text at
+     4.52:1 (WCAG AA wants 4.50). Hue and saturation are identical to
+     --accent; only value drops, 100% -> 90.3%.
+     Why two tokens: white ON the accent needs the accent dark, while the
+     accent AS text on --bg-base needs it bright. #FF2A00 scores 3.76:1
+     behind white text and 5.32:1 as text; #E62600 scores 4.52:1 and
+     4.43:1. Neither passes both, so surfaces take this one and text keeps
+     --accent. */
+  --accent-surface: #E62600;
   --accent-dim:     #B21D00;
   --accent-glow:    rgba(var(--accent-rgb), 0.15);
   --warning:        #F59E0B;
