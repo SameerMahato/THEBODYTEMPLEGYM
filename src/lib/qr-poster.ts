@@ -20,7 +20,7 @@ const H = 1350
 
 const COLORS = {
   bg: '#080808',
-  accent: '#FF2A00',
+  accent: '#E1FE54',
   textPrimary: '#F2F2F2',
   textSecondary: '#A0A0A0',
   textMuted: '#828282',

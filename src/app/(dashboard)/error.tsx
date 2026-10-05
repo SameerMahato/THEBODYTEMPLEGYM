@@ -57,7 +57,7 @@ export default function DashboardError({ error, reset }: {
         style={{
           padding: '10px 20px',
           background: 'var(--accent-surface)',
-          color: '#fff',
+          color: 'var(--text-on-accent)',
           border: 'none',
           borderRadius: 'var(--radius-sm)',
           fontSize: '13px',

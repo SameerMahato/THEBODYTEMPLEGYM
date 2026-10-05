@@ -27,9 +27,12 @@ export const theme = {
     textSecondary: 'var(--text-secondary)',
     textMuted: 'var(--text-muted)',
     textAccent: 'var(--text-accent)',
+    /** Near-black. For text on a filled accent — white fails there. */
+    textOnAccent: 'var(--text-on-accent)',
 
     // Brand and status
     accent: 'var(--accent)',
+    accentSurface: 'var(--accent-surface)',
     accentDim: 'var(--accent-dim)',
     accentGlow: 'var(--accent-glow)',
     warning: 'var(--warning)',

@@ -141,7 +141,7 @@ export default function LoginPage() {
               disabled={loading}
               style={{
                 background: loading ? 'var(--accent-dim)' : 'var(--accent-surface)',
-                color: '#fff',
+                color: 'var(--text-on-accent)',
                 border: 'none',
                 borderRadius: '4px',
                 padding: '12px',

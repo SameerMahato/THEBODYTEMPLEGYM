@@ -26,7 +26,7 @@ export default function NotFound() {
         marginTop: '8px',
         padding: '10px 24px',
         background: 'var(--accent-surface)',
-        color: '#fff',
+        color: 'var(--text-on-accent)',
         borderRadius: 'var(--radius-sm)',
         textDecoration: 'none',
         fontWeight: 600,

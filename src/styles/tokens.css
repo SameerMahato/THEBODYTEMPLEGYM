@@ -21,17 +21,21 @@
   --border-strong:  #2A2A2A;
 
   /* ── Brand & status ────────────────────── Extracted */
-  --accent:         #FF2A00;
-  /* The same brand colour, darkened just enough to carry white text at
-     4.52:1 (WCAG AA wants 4.50). Hue and saturation are identical to
-     --accent; only value drops, 100% -> 90.3%.
-     Why two tokens: white ON the accent needs the accent dark, while the
-     accent AS text on --bg-base needs it bright. #FF2A00 scores 3.76:1
-     behind white text and 5.32:1 as text; #E62600 scores 4.52:1 and
-     4.43:1. Neither passes both, so surfaces take this one and text keeps
-     --accent. */
-  --accent-surface: #E62600;
-  --accent-dim:     #B21D00;
+  --accent:         #E1FE54;
+  /* Identical to --accent, and deliberately not darkened.
+     The previous red needed a darker twin so white text on it could reach
+     4.52:1. That trade-off does not exist here and cannot be made to: this
+     lime is light, so white on it scores 1.13:1, and darkening it far
+     enough for white (#6B7D20) would both destroy the colour and still
+     only reach 4.59:1. Filled controls therefore carry --text-on-accent,
+     which scores 17.4:1, and one value serves as both text and surface.
+     The token is kept so call sites that mean "the filled variant" still
+     read that way. */
+  --accent-surface: #E1FE54;
+  --accent-dim:     #9DB337;   /* disabled / in-flight fills */
+
+  /* Near-black, for text on a filled accent. White is never correct here. */
+  --text-on-accent: #0A0A0A;
   --accent-glow:    rgba(var(--accent-rgb), 0.15);
   --warning:        #F59E0B;
   --warning-dim:    #B87A08;
@@ -69,7 +73,7 @@
   /* ── Brand RGB channels ──
      Every tint below is derived from these, so changing the brand colour
      changes its tints too. Previously each tint was typed out by hand. */
-  --accent-rgb:     255, 42, 0;     /* #FF2A00 */
+  --accent-rgb:     225, 254, 84;   /* #E1FE54 */
   --warning-rgb:    245, 158, 11;   /* #F59E0B */
   --danger-rgb:     255, 68, 68;    /* #FF4444 */
   --success-rgb:    34, 197, 94;    /* #22C55E */

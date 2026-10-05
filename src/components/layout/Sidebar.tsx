@@ -140,7 +140,7 @@ export default function Sidebar({ pendingCount, onClose }: {
               {item.showsPendingBadge && pendingCount > 0 && (
                 <span style={{
                   background: 'var(--accent-surface)',
-                  color: '#fff',
+                  color: 'var(--text-on-accent)',
                   fontSize: '10px',
                   fontWeight: 700,
                   borderRadius: '10px',

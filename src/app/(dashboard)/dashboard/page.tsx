@@ -48,7 +48,7 @@ export default async function DashboardPage() {
           gap: '8px',
           padding: '10px 20px',
           background: 'var(--accent-surface)',
-          color: '#fff',
+          color: 'var(--text-on-accent)',
           borderRadius: 'var(--radius-sm)',
           textDecoration: 'none',
           fontSize: '13px',
@@ -112,7 +112,7 @@ export default async function DashboardPage() {
               }}>ACTION REQUIRED</span>
               <span style={{
                 background: 'var(--accent-surface)',
-                color: '#fff',
+                color: 'var(--text-on-accent)',
                 fontSize: '11px',
                 fontWeight: 700,
                 borderRadius: '10px',

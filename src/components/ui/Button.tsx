@@ -16,7 +16,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const styles: Record<Variant, React.CSSProperties> = {
   primary: {
     background: 'var(--accent-surface)',
-    color: '#fff',
+    color: 'var(--text-on-accent)',
     border: '1px solid var(--accent-surface)',
     fontWeight: 600,
     boxShadow: '0 0 0 0 var(--accent-glow)',
