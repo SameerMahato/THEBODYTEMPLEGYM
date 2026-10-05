@@ -2,6 +2,7 @@ import QRCode from 'react-qr-code'
 import JoinForm from '@/components/join/JoinForm'
 import { gymToday } from '@/lib/utils'
 import { appConfig } from '@/config/app'
+import { staticAppUrl } from '@/lib/app-url'
 
 // Public, anonymous, identical for every visitor — serve it from the CDN and
 // regenerate hourly so the date-of-birth bound stays current.
@@ -13,7 +14,9 @@ export const metadata = {
 }
 
 export default function JoinPage() {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL
+  // staticAppUrl() only, never requestAppUrl(): reading headers here would
+  // opt this page out of the static rendering that `revalidate` sets up.
+  const appUrl = staticAppUrl()
   const joinUrl = appUrl ? `${appUrl}/join` : null
 
   return (

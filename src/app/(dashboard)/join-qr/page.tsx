@@ -1,18 +1,11 @@
-import { headers } from 'next/headers'
 import QRCode from 'react-qr-code'
 import PageHeader from '@/components/ui/PageHeader'
 import QRActions from '@/components/join/QRActions'
 import { appConfig } from '@/config/app'
+import { requestAppUrl } from '@/lib/app-url'
 
 export default async function JoinQRPage() {
-  let base = process.env.NEXT_PUBLIC_APP_URL
-  if (!base) {
-    const h = await headers()
-    const host = h.get('host') ?? 'localhost:3000'
-    const proto = h.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https')
-    base = `${proto}://${host}`
-  }
-  const joinUrl = `${base}/join`
+  const joinUrl = `${await requestAppUrl()}/join`
 
   return (
     <div>
